@@ -1,5 +1,6 @@
 package com.errand.team5.errand;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -12,23 +13,70 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ViewFlipper;
+
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private ViewFlipper vf;
+    //The request code for creating a task
+    static final int CREATE_TASK_REQUEST = 1;
+
+    private GoogleSignInClient mGoogleSignInClient;
+
+    //Account for google sign in
+    private GoogleSignInAccount account;
+
+    private TextView name;
+    private TextView email;
+
+
+    /**
+     * Used for issuing a startActivityResult to create a Task
+     */
+    private void createTask() {
+        Intent intent = new Intent(this, CreateTask.class);
+        startActivityForResult(intent, CREATE_TASK_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        if (requestCode == CREATE_TASK_REQUEST) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                //Successfully create task
+                Toast.makeText(this, "Result turned ok", Toast.LENGTH_LONG).show();
+            }else{
+                //Failure
+                Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //We don't want the toolbar showing
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.create_task);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                createTask();
             }
         });
 
@@ -40,6 +88,47 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //Get the name and text view
+        View headerView = navigationView.getHeaderView(0);
+        name = (TextView) headerView.findViewById(R.id.name);
+        email = (TextView) headerView.findViewById(R.id.email);
+
+        //View Flipper for nav drawer
+        vf = (ViewFlipper)findViewById(R.id.main_flipper);
+
+        // Configure sign-in to request the user's ID, email address, and basic
+// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+
+        // Build a GoogleSignInClient with the options specified by gso.
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
+        checkLogin(acc);
+
+        if(account != null){
+            email.setText(account.getEmail());
+            name.setText(account.getDisplayName());
+        }
+    }
+
+    //Check if their profile is null, if so, redirect them to login
+    private void checkLogin(GoogleSignInAccount gsia){
+        if(gsia == null){
+            Intent login = new Intent(this, Login.class);
+            startActivity(login);
+        }else{
+            account = gsia;
+        }
     }
 
     @Override
@@ -81,13 +170,13 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_open) {
-
+            vf.setDisplayedChild(0);
         } else if (id == R.id.nav_ongoing) {
-
+            vf.setDisplayedChild(1);
         } else if (id == R.id.nav_history) {
-
+            vf.setDisplayedChild(2);
         } else if (id == R.id.nav_settings) {
-
+            vf.setDisplayedChild(3);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

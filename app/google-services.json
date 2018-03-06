@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "408560817657",
+    "firebase_url": "https://errand-9c52d.firebaseio.com",
+    "project_id": "errand-9c52d",
+    "storage_bucket": "errand-9c52d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:408560817657:android:e1693ac705571d6a",
+        "android_client_info": {
+          "package_name": "com.errand.team5.errand"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "408560817657-42g62dkucjpq84e1gbs26ueaqcaag3bg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.errand.team5.errand",
+            "certificate_hash": "3b1e459b7b3c9629ce273144e27d02d1144b2e32"
+          }
+        },
+        {
+          "client_id": "408560817657-bgr83jp030im9o2qmc0vf9oemvtds8lo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCvo-BCMHaJxRqMfuRn9OyrgOYWwGbSNwo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "408560817657-bgr83jp030im9o2qmc0vf9oemvtds8lo.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
