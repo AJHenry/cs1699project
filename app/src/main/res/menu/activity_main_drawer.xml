@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/activities"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_open"
             android:icon="@drawable/ic_note_add_black_24dp"
@@ -16,6 +18,11 @@
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_done_black_24dp"
             android:title="Completed" />
+    </group>
+    <group
+        android:checkableBehavior="single"
+        android:enabled="true"
+        android:visible="true">
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_menu_manage"
