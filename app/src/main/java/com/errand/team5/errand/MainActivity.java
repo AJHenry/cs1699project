@@ -76,7 +76,9 @@ public class MainActivity extends AppCompatActivity
 
         //We don't want the toolbar showing
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Task Feed");
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.create_task);
         fab.setOnClickListener(new View.OnClickListener() {

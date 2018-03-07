@@ -8,16 +8,16 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_open"
-            android:icon="@drawable/ic_note_add_black_24dp"
-            android:title="Available" />
+            android:icon="@drawable/ic_near_me_black_24dp"
+            android:title="Available Tasks" />
         <item
             android:id="@+id/nav_ongoing"
             android:icon="@drawable/ic_query_builder_black_24dp"
-            android:title="Current" />
+            android:title="My Tasks" />
         <item
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_done_black_24dp"
-            android:title="Completed" />
+            android:title="Completed Tasks" />
     </group>
     <group
         android:checkableBehavior="single"
