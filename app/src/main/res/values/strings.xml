@@ -65,6 +65,15 @@
         <item>3</item>
     </string-array>
 
+    <!-- For the Spinner -->
+    <string-array name="time_array">
+        <item>10</item>
+        <item>20</item>
+        <item>30</item>
+        <item>45</item>
+        <item>60</item>
+    </string-array>
+
     <string-array name="multi_select_list_preference_default_value" />
 
     <string name="pref_title_system_sync_settings">System sync settings</string>
@@ -92,4 +101,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+
+
+
 </resources>
