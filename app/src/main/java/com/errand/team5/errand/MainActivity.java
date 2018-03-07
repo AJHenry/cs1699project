@@ -3,7 +3,8 @@ package com.errand.team5.errand;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,7 +14,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +23,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -103,7 +99,7 @@ public class MainActivity extends AppCompatActivity
         email = (TextView) headerView.findViewById(R.id.email);
 
         //View Flipper for nav drawer
-        vf = (ViewFlipper)findViewById(R.id.main_flipper);
+        //vf = (ViewFlipper)findViewById(R.id.main_flipper);
 
         // Configure sign-in to request the user's ID, email address, and basic
 // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
@@ -114,11 +110,21 @@ public class MainActivity extends AppCompatActivity
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
+        // Create a new fragment and specify the fragment to show based on nav item clicked
+        Fragment fragment = null;
+        Class fragmentClass = null;
 
+        fragmentClass = Feed.class;
 
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        generateFeed();
-
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
     }
 
 
@@ -157,9 +163,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
+        return false;
     }
 
     @Override
@@ -183,39 +187,38 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
+        // Create a new fragment and specify the fragment to show based on nav item clicked
+        Fragment fragment = null;
+        Class fragmentClass = null;
+
         if (id == R.id.nav_open) {
-            vf.setDisplayedChild(0);
+            fragmentClass = Feed.class;
         } else if (id == R.id.nav_ongoing) {
-            vf.setDisplayedChild(1);
+            fragmentClass = ActiveTasks.class;
         } else if (id == R.id.nav_history) {
-            vf.setDisplayedChild(2);
+            fragmentClass = History.class;
+        } else if (id == R.id.nav_account) {
+            fragmentClass = Account.class;
         } else if (id == R.id.nav_settings) {
-            vf.setDisplayedChild(3);
+            fragmentClass = Settings.class;
+    }
+
+        try {
+            fragment = (Fragment) fragmentClass.newInstance();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
+        // Insert the fragment by replacing any existing fragment
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
-    private void generateFeed(){
-        feed=(ListView)findViewById(R.id.task_feed);
 
-        ArrayList<TaskModel> dataModels= new ArrayList<>();
-
-        dataModels.add(new TaskModel("A", "Coffee Run", "15 mins", 10));
-        dataModels.add(new TaskModel("B", "Fold Laundry", "30 mins", 20));
-
-        TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getApplicationContext());
-
-        feed.setAdapter(adapter);
-        feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Toast.makeText(getApplicationContext(), "Clicked on"+position, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
 
 }

@@ -25,9 +25,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".CreateTask" />
-        <activity android:name=".History" />
-        <activity android:name=".Settings" />
-        <activity android:name=".ActiveTasks" />
         <activity android:name=".Login" />
         <activity android:name=".Task"></activity>
     </application>
