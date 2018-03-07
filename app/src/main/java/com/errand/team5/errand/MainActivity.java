@@ -13,6 +13,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -23,6 +25,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -38,6 +42,8 @@ public class MainActivity extends AppCompatActivity
 
     private TextView name;
     private TextView email;
+
+    private ListView feed;
 
 
     /**
@@ -105,6 +111,12 @@ public class MainActivity extends AppCompatActivity
 
         // Build a GoogleSignInClient with the options specified by gso.
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+
+
+
+
+        generateFeed();
+
     }
 
 
@@ -183,4 +195,25 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void generateFeed(){
+        feed=(ListView)findViewById(R.id.task_feed);
+
+        ArrayList<TaskModel> dataModels= new ArrayList<>();
+
+        dataModels.add(new TaskModel("A", "Coffee Run", "15 mins", 10));
+        dataModels.add(new TaskModel("B", "Fold Laundry", "30 mins", 20));
+
+        TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getApplicationContext());
+
+        feed.setAdapter(adapter);
+        feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Toast.makeText(getApplicationContext(), "Clicked on"+position, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
 }
