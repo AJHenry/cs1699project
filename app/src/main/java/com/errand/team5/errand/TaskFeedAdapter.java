@@ -31,6 +31,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             TextView duration;
             TextView price;
             TextView time;
+            TextView description;
         }
 
         public TaskFeedAdapter(ArrayList<TaskModel> data, Context context) {
@@ -56,6 +57,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
                 viewHolder.distance = (TextView) convertView.findViewById(R.id.distance);
                 viewHolder.price = (TextView) convertView.findViewById(R.id.price);
                 viewHolder.time = (TextView) convertView.findViewById(R.id.time);
+                viewHolder.description = (TextView) convertView.findViewById(R.id.description);
 
 
                 convertView.setTag(viewHolder);
@@ -65,14 +67,14 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
 
 
             viewHolder.title.setText(dataModel.getTitle());
-
+            viewHolder.description.setText(dataModel.getDescription());
 
             //Change later
             viewHolder.duration.setText("20 mins ago");
             viewHolder.distance.setText("1 mile away");
 
-            viewHolder.price.setText("$"+Integer.toString(dataModel.getPrice()));
-            viewHolder.time.setText("/"+dataModel.getTimeToComplete());
+            viewHolder.price.setText(Integer.toString(dataModel.getPrice()));
+            viewHolder.time.setText(dataModel.getTimeToComplete());
 
             // Return the completed view to render on screen
             return convertView;

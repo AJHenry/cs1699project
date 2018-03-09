@@ -1,6 +1,7 @@
 package com.errand.team5.errand;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -14,12 +15,10 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class Feed extends Fragment {
 
     private ListView feed;
+    private ArrayList<TaskModel> taskList;
 
     public Feed() {
         // Required empty public constructor
@@ -43,19 +42,22 @@ public class Feed extends Fragment {
         Log.d("F", "FFFFFFFFFFFFF");
         feed=(ListView) getView().findViewById(R.id.task_feed);
 
-        ArrayList<TaskModel> dataModels= new ArrayList<>();
+        taskList = new ArrayList<>();
 
-        dataModels.add(new TaskModel("A", "Coffee Run", "15 mins", 10));
-        dataModels.add(new TaskModel("B", "Fold Laundry", "30 mins", 20));
+        taskList.add(new TaskModel("A", "Coffee Run", "15 mins est.", 10, "I would like a Venti Coffee with 3 cream and 3 sugar"));
+        taskList.add(new TaskModel("B", "Fold Laundry", "2 hrs estimated", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
+        taskList.add(new TaskModel("B", "Fold Laundry", "est. 2 hrs completion", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
+        taskList.add(new TaskModel("B", "Fold Laundry", "estimated 2 hrs completion", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
 
-        TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getView().getContext());
+        TaskFeedAdapter adapter= new TaskFeedAdapter(taskList,getView().getContext());
 
         feed.setAdapter(adapter);
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Toast.makeText(getView().getContext(), "Clicked on "+position, Toast.LENGTH_LONG).show();
+                Intent task = new Intent(getContext(), Task.class);
+                task.putExtra("taskID", taskList.get(position).getTaskID());
+                startActivity(task);
             }
         });
     }
