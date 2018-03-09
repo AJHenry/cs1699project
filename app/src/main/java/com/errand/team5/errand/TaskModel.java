@@ -42,11 +42,12 @@ public class TaskModel {
         this.time = time;
     }
 
-    public TaskModel(String taskID, String title, String timeToComplete, int price) {
+    public TaskModel(String taskID, String title, String timeToComplete, int price, String description) {
         this.taskID = taskID;
         this.title = title;
         this.timeToComplete = timeToComplete;
         this.price = price;
+        this.description = description;
     }
 
     public String getTaskID() {

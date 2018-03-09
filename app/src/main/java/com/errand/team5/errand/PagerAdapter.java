@@ -17,11 +17,11 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
         switch (position) {
             case 0:
-                Tab1 tab1 = new Tab1();
-                return tab1;
+                MyTasks myTasks = new MyTasks();
+                return myTasks;
             case 1:
-                Tab2 tab2 = new Tab2();
-                return tab2;
+                OthersTasks othersTasks = new OthersTasks();
+                return othersTasks;
             default:
                 return null;
         }

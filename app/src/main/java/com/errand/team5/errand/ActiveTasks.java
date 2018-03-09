@@ -30,10 +30,9 @@ public class ActiveTasks extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        Log.d("GOT", "HERE");
         TabLayout tabLayout = (TabLayout) getView().findViewById(R.id.tab_layout);
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 1"));
-        tabLayout.addTab(tabLayout.newTab().setText("Tab 2"));
+        tabLayout.addTab(tabLayout.newTab().setText("My Tasks"));
+        tabLayout.addTab(tabLayout.newTab().setText("Others Tasks"));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = (ViewPager) getView().findViewById(R.id.pager);
