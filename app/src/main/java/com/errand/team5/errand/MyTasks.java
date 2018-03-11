@@ -33,7 +33,7 @@ public class MyTasks extends Fragment {
 
         ArrayList<TaskModel> dataModels= new ArrayList<>();
 
-        dataModels.add(new TaskModel("C", "Grocery Shopping", "1 hr est.", 80, "I need someone to get me these ingredients, it does not matter from where. I need 2 onions and a Dr. Pepper 20oz"));
+        dataModels.add(new TaskModel("C", "Grocery Shopping", "1 hr est.", 80, "I need someone to get me these ingredients, it does not matter from where. I need 2 onions and a Dr. Pepper 20oz", 5.0f));
 
         TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getView().getContext());
 

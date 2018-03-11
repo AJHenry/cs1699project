@@ -26,11 +26,12 @@ public class TaskModel {
     String timeToComplete;
     int price;
     String specialInstructions;
+    float creatorRating;
 
 
 
 
-    public TaskModel(String taskID, String type, String creatorID, int status, String title, String description, String address, String city, String state, String zip, Date time) {
+    public TaskModel(String taskID, String type, String creatorID, int status, String title, String description, String address, String city, String state, String zip, Date time, float creatorRating) {
         this.taskID = taskID;
         this.type = type;
         this.creatorID = creatorID;
@@ -42,14 +43,16 @@ public class TaskModel {
         this.state = state;
         this.zip = zip;
         this.time = time;
+        this.creatorRating = creatorRating;
     }
 
-    public TaskModel(String taskID, String title, String timeToComplete, int price, String description) {
+    public TaskModel(String taskID, String title, String timeToComplete, int price, String description, float creatorRating) {
         this.taskID = taskID;
         this.title = title;
         this.timeToComplete = timeToComplete;
         this.price = price;
         this.description = description;
+        this.creatorRating = creatorRating;
     }
 
     public String getTaskID() {
@@ -163,4 +166,8 @@ public class TaskModel {
     public void setPrice(int price) {
         this.price = price;
     }
+
+    public float getCreatorRating() { return creatorRating; }
+
+    public void setCreatorRating(float creatorRating) { this.creatorRating = creatorRating; }
 }
