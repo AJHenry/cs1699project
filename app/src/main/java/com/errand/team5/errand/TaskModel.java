@@ -17,6 +17,7 @@ public class TaskModel {
     String title;
     String description;
     String address;
+    String address2;
     String city;
     String state;
     String zip;
@@ -24,6 +25,7 @@ public class TaskModel {
     String dateToTime;
     String timeToComplete;
     int price;
+    String specialInstructions;
 
 
 

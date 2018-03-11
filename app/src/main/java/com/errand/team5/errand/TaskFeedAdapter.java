@@ -1,16 +1,10 @@
 package com.errand.team5.errand;
 
 import android.content.Context;
-import android.content.Intent;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -35,7 +29,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
         }
 
         public TaskFeedAdapter(ArrayList<TaskModel> data, Context context) {
-            super(context, R.layout.row_item, data);
+            super(context, R.layout.listview_feed, data);
             this.dataSet = data;
             this.mContext=context;
         }
@@ -51,13 +45,13 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
 
                 viewHolder = new ViewHolder();
                 LayoutInflater inflater = LayoutInflater.from(getContext());
-                convertView = inflater.inflate(R.layout.row_item, parent, false);
+                convertView = inflater.inflate(R.layout.listview_feed, parent, false);
                 viewHolder.title = (TextView) convertView.findViewById(R.id.title);
                 viewHolder.duration = (TextView) convertView.findViewById(R.id.duration);
                 viewHolder.distance = (TextView) convertView.findViewById(R.id.distance);
                 viewHolder.price = (TextView) convertView.findViewById(R.id.price);
                 viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-                viewHolder.description = (TextView) convertView.findViewById(R.id.description);
+                viewHolder.description = (TextView) convertView.findViewById(R.id.instructions);
 
 
                 convertView.setTag(viewHolder);
