@@ -45,9 +45,8 @@ public class Feed extends Fragment {
         taskList = new ArrayList<>();
 
         taskList.add(new TaskModel("A", "Coffee Run", "15 mins est.", 10, "I would like a Venti Coffee with 3 cream and 3 sugar"));
-        taskList.add(new TaskModel("B", "Fold Laundry", "2 hrs estimated", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
-        taskList.add(new TaskModel("B", "Fold Laundry", "est. 2 hrs completion", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
-        taskList.add(new TaskModel("B", "Fold Laundry", "estimated 2 hrs completion", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
+        taskList.add(new TaskModel("B", "Fold Laundry", "2 hrs est.", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry"));
+        taskList.add(new TaskModel("C", "Burger King Delivery", "30 mins est.", 12, "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink"));
 
         TaskFeedAdapter adapter= new TaskFeedAdapter(taskList,getView().getContext());
 

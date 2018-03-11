@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,8 @@ public class ActiveTasks extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Current Tasks");
 
         TabLayout tabLayout = (TabLayout) getView().findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("My Tasks"));

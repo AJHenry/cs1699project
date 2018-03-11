@@ -41,15 +41,12 @@ public class Task extends AppCompatActivity implements OnMapReadyCallback {
             Intent intent = getIntent();
             String taskID = intent.getStringExtra("taskID");
 
-            taskComments = (ListView) findViewById(R.id.task_comments);
             taskTitle = (TextView) findViewById(R.id.task_title);
             taskCompletionTime = (TextView) findViewById(R.id.task_completion_time);
-            taskDescription = (TextView) findViewById(R.id.task_description);
+            //taskDescription = (TextView) findViewById(R.id.task_description);
             taskPrice = (TextView) findViewById(R.id.task_price);
-            taskComment = (EditText) findViewById(R.id.task_comment);
-            taskCommentButton = (Button) findViewById(R.id.task_comment_button);
 
-            taskTitle.setText(taskID);
+            //taskTitle.setText(taskID);
 
             SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                     .findFragmentById(R.id.map);
@@ -61,9 +58,10 @@ public class Task extends AppCompatActivity implements OnMapReadyCallback {
         mMap = googleMap;
 
         // Add a marker in Sydney, Australia, and move the camera.
-        LatLng sydney = new LatLng(-34, 151);
+        LatLng sydney = new LatLng(40.4406, -79.9959);
+        final float MAP_ZOOM_MIN = mMap.getMinZoomLevel();
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, MAP_ZOOM_MIN));
     }
 
     @Override
