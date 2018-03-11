@@ -102,21 +102,57 @@
                 android:textAlignment="center"
                 android:textSize="8sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView6" />
+                app:layout_constraintTop_toBottomOf="@+id/postInfo" />
 
-            <TextView
-                android:id="@+id/textView6"
+            <LinearLayout
+                android:id="@+id/postInfo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:fontFamily="@font/roboto_light"
-                android:text="Posted 19 mins ago"
-                android:textAlignment="center"
-                android:textSize="8sp"
-                app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/task_title" />
+                app:layout_constraintTop_toBottomOf="@+id/task_title">
+
+                <TextView
+                    android:id="@+id/post_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:fontFamily="@font/roboto_light"
+                    android:text="Posted 19 mins ago"
+                    android:textAlignment="center"
+                    android:textSize="8sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/task_title" />
+
+                <TextView
+                    android:id="@+id/post_user"
+                    android:autoLink="email"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:fontFamily="@font/roboto_light"
+                    android:text="example.user@gmail.com"
+                    android:textAlignment="center"
+                    android:textSize="8sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/task_title" />
+
+                <RatingBar
+                    android:id="@+id/creatorRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginStart="16dp"
+                    android:isIndicator="true"
+                    android:numStars="5"
+                    android:rating="3.6"
+                    android:stepSize="0.2"
+                    style="?android:attr/ratingBarStyleSmall"/>
+
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/task_completion_time"

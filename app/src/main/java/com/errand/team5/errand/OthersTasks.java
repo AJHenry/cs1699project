@@ -36,7 +36,7 @@ public class OthersTasks extends Fragment {
 
         ArrayList<TaskModel> taskList= new ArrayList<>();
 
-        taskList.add(new TaskModel("A", "Math Tutor", "1 hr est.", 15, "I am in need of an Algebra tutor"));
+        taskList.add(new TaskModel("A", "Math Tutor", "1 hr est.", 15, "I am in need of an Algebra tutor", 4.0f));
         TaskFeedAdapter adapter= new TaskFeedAdapter(taskList,getView().getContext());
 
         feed.setAdapter(adapter);

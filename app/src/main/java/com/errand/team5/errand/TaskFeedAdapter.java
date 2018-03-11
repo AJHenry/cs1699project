@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             TextView price;
             TextView time;
             TextView description;
+            RatingBar creatorRating;
         }
 
         public TaskFeedAdapter(ArrayList<TaskModel> data, Context context) {
@@ -52,6 +54,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
                 viewHolder.price = (TextView) convertView.findViewById(R.id.price);
                 viewHolder.time = (TextView) convertView.findViewById(R.id.time);
                 viewHolder.description = (TextView) convertView.findViewById(R.id.instructions);
+                viewHolder.creatorRating = (RatingBar) convertView.findViewById(R.id.creatorRating);
 
 
                 convertView.setTag(viewHolder);
@@ -62,6 +65,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
 
             viewHolder.title.setText(dataModel.getTitle());
             viewHolder.description.setText(dataModel.getDescription());
+            viewHolder.creatorRating.setRating(dataModel.getCreatorRating());
 
             //Change later
             viewHolder.duration.setText("20 mins ago");
