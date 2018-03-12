@@ -40,7 +40,7 @@ public class History extends Fragment {
 
         ArrayList<TaskModel> dataModels= new ArrayList<>();
 
-        dataModels.add(new TaskModel("0", "Test", "Completed", 999, "This is a test of what a history task may look like"));
+        dataModels.add(new TaskModel("0", "Test", "Completed", 999, "This is a test of what a history task may look like", 2.0f));
 
         TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getView().getContext());
 
