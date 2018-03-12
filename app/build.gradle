@@ -6,6 +6,12 @@ android {
             keyAlias 'default'
             keyPassword 'password'
         }
+        debug {
+            keyAlias 'debug'
+            keyPassword 'password'
+            storeFile file('C:/Users/imand/Desktop/CS1699/cs1699project/debug.jks')
+            storePassword 'password'
+        }
     }
     compileSdkVersion 26
     defaultConfig {
@@ -20,6 +26,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
         }
     }
 }

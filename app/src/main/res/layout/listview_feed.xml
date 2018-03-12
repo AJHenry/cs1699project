@@ -71,46 +71,36 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/duration" />
 
-        <LinearLayout
-            android:id="@+id/linearLayout4"
+        <RatingBar
+            android:id="@+id/creatorRating"
+            style="?android:attr/ratingBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:numStars="5"
+            android:rating="3.8"
+            android:stepSize="0.2"
+            app:layout_constraintStart_toEndOf="@+id/distance"
+            app:layout_constraintTop_toBottomOf="@+id/instructions" />
+
+        <TextView
+            android:id="@+id/distance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/roboto_light"
+            android:paddingBottom="8dp"
+            android:text="1.2 miles away"
+            android:textAlignment="viewStart"
+            android:textSize="12sp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/instructions"
-            >
-
-            <TextView
-                android:id="@+id/distance"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1"
-                android:fontFamily="@font/roboto_light"
-                android:paddingBottom="8dp"
-                android:text="1.2 miles away"
-                android:textAlignment="viewStart"
-                android:textSize="12sp"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/instructions" />
-
-            <RatingBar
-                android:id="@+id/creatorRating"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:layout_weight="1"
-                android:numStars="5"
-                android:stepSize="0.2"
-                android:rating="3.8"
-                style="?android:attr/ratingBarStyleSmall"/>
-
-        </LinearLayout>
+            app:layout_constraintTop_toBottomOf="@+id/instructions" />
 
         <TextView
             android:id="@+id/instructions"
