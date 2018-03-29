@@ -1,6 +1,7 @@
 package com.errand.team5.errand;
 
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,11 +12,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class OthersTasks extends Fragment {
 
     private ListView feed;
+    private final String TAG = "OtherTasksClass";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -30,21 +35,28 @@ public class OthersTasks extends Fragment {
         generateFeed();
     }
 
-    private void generateFeed(){
-        Log.d("F", "FFFFFFFFFFFFF");
-        feed=(ListView) getView().findViewById(R.id.others_task_feed);
+    private void generateFeed() {
+        Log.d(TAG, "Generated Feed");
+        feed = (ListView) getView().findViewById(R.id.others_task_feed);
 
-        ArrayList<TaskModel> taskList= new ArrayList<>();
+        ArrayList<TaskModel> taskList = new ArrayList<>();
 
-        taskList.add(new TaskModel("A", "Math Tutor", "1 hr est.", 15, "I am in need of an Algebra tutor", 4.0f));
-        TaskFeedAdapter adapter= new TaskFeedAdapter(taskList,getView().getContext());
+        //Create a new drop off location
+        Location dropOff = new Location("");
+        dropOff.setLongitude(0);
+        dropOff.setLatitude(0);
+
+        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+
+        taskList.add(exampleTask);
+        TaskFeedAdapter adapter = new TaskFeedAdapter(taskList, getView().getContext(), null);
 
         feed.setAdapter(adapter);
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                Toast.makeText(getView().getContext(), "Clicked on "+position, Toast.LENGTH_LONG).show();
+                Toast.makeText(getView().getContext(), "Clicked on " + position, Toast.LENGTH_LONG).show();
             }
         });
     }
