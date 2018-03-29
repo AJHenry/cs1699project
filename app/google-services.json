@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "408560817657-cg3d1f7e0ttkv5q0arq9ll2ha7rv1bm2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.errand.team5.errand",
+            "certificate_hash": "bcffd51d68d63dca3c9ee6825b2c3d5230aa5256"
+          }
+        },
+        {
           "client_id": "408560817657-42g62dkucjpq84e1gbs26ueaqcaag3bg.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {

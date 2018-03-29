@@ -1,90 +1,87 @@
 package com.errand.team5.errand;
 
+
+import android.location.Location;
+
 import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 
 /**
  * Created by Andrew on 3/7/2018.
+ * This is the model for tasks for firebase
  */
 
 public class TaskModel {
 
-    String taskID;
-    String type;
-    String creatorID;
+    //Task identifier, created by firebase
+    String taskId;
+
+    //Creator identifier, created by Google
+    String creatorId;
+
+    //Category of errand
+    //0 - Default (none)
+    int category;
+
+    //Status of errand
+    //0 - new, unrequested
+    //1 - in progress
+    //2 - completed
+    //3 - cancelled
     int status;
 
+    //Time it was published
+    Timestamp publishTime;
 
+    //Time to complete errand, in minutes
+    int timeToCompleteMins;
+
+    //Cost of errand
+    float baseCost;
+
+    //Cost of money service
+    //i.e paypal's cut
+    float paymentCost;
+
+    //Title of post
     String title;
+
+    //Description of task
     String description;
-    String address;
-    String address2;
-    String city;
-    String state;
-    String zip;
-    Date time;
-    String dateToTime;
-    String timeToComplete;
-    int price;
+
+    //Special instructions
     String specialInstructions;
-    float creatorRating;
 
+    //Location of person requesting
+    Location dropOffDestination;
 
+    //Location of errand
+    Location errandLocation;
 
+    /* AUTO GENERATED */
 
-    public TaskModel(String taskID, String type, String creatorID, int status, String title, String description, String address, String city, String state, String zip, Date time, float creatorRating) {
-        this.taskID = taskID;
-        this.type = type;
-        this.creatorID = creatorID;
+    public TaskModel(String taskId, String creatorId, int category, int status, Timestamp publishTime,
+                     int timeToCompleteMins, float baseCost, float paymentCost, String title, String description,
+                     String specialInstructions, Location dropOffDestination, Location errandLocation) {
+        this.taskId = taskId;
+        this.creatorId = creatorId;
+        this.category = category;
         this.status = status;
+        this.publishTime = publishTime;
+        this.timeToCompleteMins = timeToCompleteMins;
+        this.baseCost = baseCost;
+        this.paymentCost = paymentCost;
         this.title = title;
         this.description = description;
-        this.address = address;
-        this.city = city;
-        this.state = state;
-        this.zip = zip;
-        this.time = time;
-        this.creatorRating = creatorRating;
+        this.specialInstructions = specialInstructions;
+        this.dropOffDestination = dropOffDestination;
+        this.errandLocation = errandLocation;
     }
 
-    public TaskModel(String taskID, String title, String timeToComplete, int price, String description, float creatorRating) {
-        this.taskID = taskID;
-        this.title = title;
-        this.timeToComplete = timeToComplete;
-        this.price = price;
-        this.description = description;
-        this.creatorRating = creatorRating;
-    }
+    public String getTaskId() {
+        return taskId;
 
-    public String getTaskID() {
-        return taskID;
-    }
-
-    public void setTaskID(String taskID) {
-        this.taskID = taskID;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getCreatorID() {
-        return creatorID;
-    }
-
-    public void setCreatorID(String creatorID) {
-        this.creatorID = creatorID;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public String getTitle() {
@@ -103,71 +100,87 @@ public class TaskModel {
         this.description = description;
     }
 
-    public String getAddress() {
-        return address;
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
-    public void setAddress(String address) {
-        this.address = address;
+    public String getCreatorId() {
+        return creatorId;
     }
 
-    public String getCity() {
-        return city;
+    public void setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
     }
 
-    public void setCity(String city) {
-        this.city = city;
+    public int getCategory() {
+        return category;
     }
 
-    public String getState() {
-        return state;
+    public void setCategory(int category) {
+        this.category = category;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public int getStatus() {
+        return status;
     }
 
-    public String getZip() {
-        return zip;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
-    public void setZip(String zip) {
-        this.zip = zip;
+    public Timestamp getPublishTime() {
+        return publishTime;
     }
 
-    public Date getTime() {
-        return time;
+    public void setPublishTime(Timestamp publishTime) {
+        this.publishTime = publishTime;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    public int getTimeToCompleteMins() {
+        return timeToCompleteMins;
     }
 
-    public String getDateToTime() {
-        return "100 mins ago";
+    public void setTimeToCompleteMins(int timeToCompleteMins) {
+        this.timeToCompleteMins = timeToCompleteMins;
     }
 
-    public void setDateToTime(String dateToTime) {
-        this.dateToTime = dateToTime;
+    public float getBaseCost() {
+        return baseCost;
     }
 
-    public String getTimeToComplete() {
-        return timeToComplete;
+    public void setBaseCost(float baseCost) {
+        this.baseCost = baseCost;
     }
 
-    public void setTimeToComplete(String timeToComplete) {
-        this.timeToComplete = timeToComplete;
+    public float getPaymentCost() {
+        return paymentCost;
     }
 
-    public int getPrice() {
-        return price;
+    public void setPaymentCost(float paymentCost) {
+        this.paymentCost = paymentCost;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public String getSpecialInstructions() {
+        return specialInstructions;
     }
 
-    public float getCreatorRating() { return creatorRating; }
+    public void setSpecialInstructions(String specialInstructions) {
+        this.specialInstructions = specialInstructions;
+    }
 
-    public void setCreatorRating(float creatorRating) { this.creatorRating = creatorRating; }
+    public Location getDropOffDestination() {
+        return dropOffDestination;
+    }
+
+    public void setDropOffDestination(Location dropOffDestination) {
+        this.dropOffDestination = dropOffDestination;
+    }
+
+    public Location getErrandLocation() {
+        return errandLocation;
+    }
+
+    public void setErrandLocation(Location errandLocation) {
+        this.errandLocation = errandLocation;
+    }
 }

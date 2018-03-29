@@ -1,10 +1,17 @@
 package com.errand.team5.errand;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,6 +30,23 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import io.nlopez.smartlocation.OnLocationUpdatedListener;
+import io.nlopez.smartlocation.SmartLocation;
+
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -31,15 +55,27 @@ public class MainActivity extends AppCompatActivity
     //The request code for creating a task
     static final int CREATE_TASK_REQUEST = 1;
 
-    private GoogleSignInClient mGoogleSignInClient;
+    //The request code for location permissions
+    private final int LOCATION_PERMISSION = 99;
 
-    //Account for google sign in
-    private GoogleSignInAccount account;
+    //Debugging
+    private final String TAG = "MainActivityClass";
+
+
+    private FirebaseAuth mAuth;
+
+    private FirebaseUser user;
+
 
     private TextView name;
     private TextView email;
 
     private ListView feed;
+
+    //Location data variables
+    //See here for more details
+    //https://github.com/codepath/android_guides/wiki/Retrieving-Location-with-LocationServices-API
+    private Location lastKnownLocation = null;
 
 
     /**
@@ -58,7 +94,7 @@ public class MainActivity extends AppCompatActivity
             if (resultCode == RESULT_OK) {
                 //Successfully create task
                 Toast.makeText(this, "Result turned ok", Toast.LENGTH_LONG).show();
-            }else{
+            } else {
                 //Failure
                 Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
@@ -70,12 +106,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        //We don't want the toolbar showing
+        //Toolbar options
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Task Feed");
 
-
+        //Create Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.create_task);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +120,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        //Drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -98,18 +135,22 @@ public class MainActivity extends AppCompatActivity
         name = (TextView) headerView.findViewById(R.id.name);
         email = (TextView) headerView.findViewById(R.id.email);
 
-        //View Flipper for nav drawer
-        //vf = (ViewFlipper)findViewById(R.id.main_flipper);
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // ...
+        mAuth = FirebaseAuth.getInstance();
 
-        // Build a GoogleSignInClient with the options specified by gso.
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        boolean permissions = checkPermissions();
+        if (!permissions) {
+            requestPermissions();
+        }
 
+        //Creates the fragments
+        createContent();
+    }
+
+    private void createContent(){
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
         Class fragmentClass = null;
@@ -132,22 +173,23 @@ public class MainActivity extends AppCompatActivity
     public void onStart() {
         super.onStart();
         // Check if user is signed in (non-null) and update UI accordingly.
-        GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(this);
-        checkLogin(acc);
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        checkLogin(currentUser);
 
-        if(account != null){
-            email.setText(account.getEmail());
-            name.setText(account.getDisplayName());
+        if (currentUser != null) {
+            email.setText(currentUser.getEmail());
+            name.setText(currentUser.getDisplayName());
         }
     }
 
     //Check if their profile is null, if so, redirect them to login
-    private void checkLogin(GoogleSignInAccount gsia){
-        if(gsia == null){
+    private void checkLogin(FirebaseUser user) {
+        if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
-        }else{
-            account = gsia;
+            finish();
+        } else {
+            this.user = user;
         }
     }
 
@@ -201,7 +243,7 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = Account.class;
         } else if (id == R.id.nav_settings) {
             fragmentClass = Settings.class;
-    }
+        }
 
         try {
             fragment = (Fragment) fragmentClass.newInstance();
@@ -219,6 +261,59 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+
+    /* PERMISSIONS CHECK */
+    private boolean checkPermissions() {
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        } else {
+            requestPermissions();
+            return false;
+        }
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                LOCATION_PERMISSION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case LOCATION_PERMISSION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    //Start the location service
+                    startLocationService();
+
+                } else {
+
+                    //TODO display error stating we need permissions
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request.
+        }
+    }
+
+    private void startLocationService() {
+        Log.d(TAG, "Started location service");
+        SmartLocation.with(this).location()
+                .start(new OnLocationUpdatedListener() {
+                    @Override
+                    public void onLocationUpdated(Location location) {
+                        Log.d(TAG, "Updated location");
+                        lastKnownLocation = location;
+                    }
+                });
+    }
 
 
 }
