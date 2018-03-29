@@ -1,5 +1,6 @@
 package com.errand.team5.errand;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -10,12 +11,15 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 
 public class History extends Fragment {
 
     private ListView feed;
+    private final String TAG = "HistoryClass";
 
     public History() {
         // Required empty public constructor
@@ -35,14 +39,25 @@ public class History extends Fragment {
     }
 
     private void generateFeed(){
-        Log.d("F", "FFFFFFFFFFFFF");
+        Log.d(TAG, "Generated Feed");
         feed=(ListView) getView().findViewById(R.id.history_feed);
 
-        ArrayList<TaskModel> dataModels= new ArrayList<>();
+        ArrayList<TaskModel> taskList = new ArrayList<>();
 
-        dataModels.add(new TaskModel("0", "Test", "Completed", 999, "This is a test of what a history task may look like", 2.0f));
+        //Create a new drop off location
+        Location dropOff = new Location("");
+        dropOff.setLongitude(0);
+        dropOff.setLatitude(0);
 
-        TaskFeedAdapter adapter= new TaskFeedAdapter(dataModels,getView().getContext());
+        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
+
+        taskList.add(exampleTask);
+        taskList.add(exampleTask1);
+        taskList.add(exampleTask2);
+
+        TaskFeedAdapter adapter= new TaskFeedAdapter(taskList ,getView().getContext(), null);
 
         feed.setAdapter(adapter);
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
