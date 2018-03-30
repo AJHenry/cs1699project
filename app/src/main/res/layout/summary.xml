@@ -44,7 +44,7 @@
             android:text="ERRAND ADDRESS"
             android:textSize="10sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/summary_dropoff2" />
+            app:layout_constraintTop_toBottomOf="@+id/summary_drop_off" />
 
         <TextView
             android:id="@+id/textView13"
@@ -68,7 +68,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textView9" />
 
         <TextView
-            android:id="@+id/summary_dropoff2"
+            android:id="@+id/summary_drop_off"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="32dp"

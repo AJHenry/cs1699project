@@ -2,7 +2,6 @@ package com.errand.team5.errand;
 
 import android.content.Context;
 import android.location.Location;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +62,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
                 viewHolder.distance = (TextView) convertView.findViewById(R.id.distance);
                 viewHolder.price = (TextView) convertView.findViewById(R.id.price);
                 viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-                viewHolder.description = (TextView) convertView.findViewById(R.id.instructions);
+                viewHolder.description = (TextView) convertView.findViewById(R.id.special_instructions);
                 viewHolder.creatorRating = (RatingBar) convertView.findViewById(R.id.creatorRating);
                 viewHolder.profileImage = (ImageView) convertView.findViewById(R.id.profile);
 
