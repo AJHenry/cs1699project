@@ -241,7 +241,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 double radius = 50;
                 //Create a new bound and pass it
                 LatLngBounds mLatLngBounds = toBounds(mLatLng, radius);
-                builder.setLatLngBounds(mLatLngBounds);
+                //builder.setLatLngBounds(mLatLngBounds);
             }
             //Start the activity
             startActivityForResult(builder.build(this), ERRAND_PLACE_PICKER);
@@ -329,7 +329,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     public void showSummary(String title, String description, double basePrice, String dropOffAddress, String specialInstructions){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(false);
+        dialog.setCancelable(true);
         dialog.setContentView(R.layout.summary);
 
         TextView summaryTitle = (TextView) dialog.findViewById(R.id.summary_title);
@@ -340,7 +340,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         //TODO fix hacky concatenate
         //summaryBasePrice.setText(""+basePrice);
         TextView summaryDropOffAddress = (TextView) dialog.findViewById(R.id.summary_drop_off);
-        summaryDropOffAddress.setText(description);
+        summaryDropOffAddress.setText(dropOffAddress);
         //TextView summaryErrandAddress = (TextView) dialog.findViewById(R.id.summary_errand);
         //summaryErrandAddress.setText(msg);
 
