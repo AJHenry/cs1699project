@@ -21,11 +21,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -45,6 +47,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
+import io.nlopez.smartlocation.location.config.LocationAccuracy;
+import io.nlopez.smartlocation.location.config.LocationParams;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -69,6 +73,7 @@ public class MainActivity extends AppCompatActivity
 
     private TextView name;
     private TextView email;
+    private ImageView profileImage;
 
     private ListView feed;
 
@@ -77,13 +82,19 @@ public class MainActivity extends AppCompatActivity
     //https://github.com/codepath/android_guides/wiki/Retrieving-Location-with-LocationServices-API
     private Location lastKnownLocation = null;
 
+    private boolean locationReady = false;
+    private boolean accountReady = false;
+
 
     /**
      * Used for issuing a startActivityResult to create a Task
      */
     private void createTask() {
         Intent intent = new Intent(this, CreateTask.class);
-        startActivityForResult(intent, CREATE_TASK_REQUEST);
+        Location loc = lastKnownLocation;
+        intent.putExtra("LAT", loc.getLatitude());
+        intent.putExtra("LONG", loc.getLongitude());
+        startActivity(intent);
     }
 
     @Override
@@ -134,6 +145,7 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         name = (TextView) headerView.findViewById(R.id.name);
         email = (TextView) headerView.findViewById(R.id.email);
+        profileImage = (ImageView) headerView.findViewById(R.id.profile_image);
 
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -145,12 +157,15 @@ public class MainActivity extends AppCompatActivity
         if (!permissions) {
             requestPermissions();
         }
-
-        //Creates the fragments
-        createContent();
     }
 
-    private void createContent(){
+    private void updateUI() {
+        //TODO Show a loading spinner until this is all ready
+
+        //Check permissions, account, and location
+        if (!locationReady || !accountReady || !checkPermissions()) {
+            return;
+        }
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
         Class fragmentClass = null;
@@ -176,20 +191,41 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
 
-        if (currentUser != null) {
-            email.setText(currentUser.getEmail());
-            name.setText(currentUser.getDisplayName());
-        }
+        //Set the email and name in the drawer
+        email.setText(currentUser.getEmail());
+        name.setText(currentUser.getDisplayName());
+
+        String imgurl = currentUser.getPhotoUrl().toString();
+        Glide.with(this).load(imgurl).into(profileImage);
+
+
+
+    }
+
+    @Override
+    public void onResume() {
+        //Start the location service
+        startLocationService();
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        //Stop location service
+        stopLocation();
+        super.onPause();
     }
 
     //Check if their profile is null, if so, redirect them to login
     private void checkLogin(FirebaseUser user) {
+        // TODO Fix error where application closes after first login
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
             finish();
         } else {
             this.user = user;
+            accountReady = true;
         }
     }
 
@@ -294,6 +330,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
 
                     //TODO display error stating we need permissions
+                    Toast.makeText(this, "NEED PERMISSIONS TODO", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -303,16 +340,45 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Location Service
+     * Calls the updateUI method
+     */
     private void startLocationService() {
         Log.d(TAG, "Started location service");
-        SmartLocation.with(this).location()
+
+        long mLocTrackingInterval = 1000 * 5; // 5 sec
+        float trackingDistance = 0;
+        LocationAccuracy trackingAccuracy = LocationAccuracy.HIGH;
+
+        LocationParams.Builder builder = new LocationParams.Builder()
+                .setAccuracy(trackingAccuracy)
+                .setDistance(trackingDistance)
+                .setInterval(mLocTrackingInterval);
+
+        SmartLocation.with(this)
+                .location()
+                //.continuous()
+                .oneFix()
+                .config(builder.build())
                 .start(new OnLocationUpdatedListener() {
                     @Override
                     public void onLocationUpdated(Location location) {
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
+                        Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
+                        //Location is ready to be used
+                        locationReady = true;
+                        updateUI();
                     }
                 });
+    }
+
+    private void stopLocation() {
+        Log.d(TAG, "Stopped location service");
+        SmartLocation.with(this)
+                .location()
+                .stop();
     }
 
 

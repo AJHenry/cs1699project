@@ -46,8 +46,11 @@ public class Feed extends Fragment {
     private ArrayList<TaskModel> taskList;
     private Location lastKnownLocation;
     private FirebaseAuth mAuth;
+    private FirebaseUser user;
 
     private final String TAG = "FeedClass";
+
+    private DatabaseReference myRef;
 
 
     public Feed() {
@@ -70,14 +73,29 @@ public class Feed extends Fragment {
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("users");
+        myRef = database.getReference("users");
 
         //GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(getActivity());
 
+        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        checkLogin(currentUser);
+    }
 
+    //Check if their profile is null, if so, redirect them to login
+    private void checkLogin(FirebaseUser user) {
+        if (user == null) {
+            Intent login = new Intent(getContext(), Login.class);
+            startActivity(login);
+            getActivity().finish();
+        } else {
+            this.user = user;
+        }
+    }
+
+    private void updateUI(){
         //Example RULE SET
-        myRef.child(currentUser.getUid()).setValue("Hello, World!");
+        myRef.child(user.getUid()).setValue("Hello, World!");
     }
 
     @Override
@@ -115,7 +133,8 @@ public class Feed extends Fragment {
 
         SmartLocation.with(getActivity())
                 .location()
-                .continuous()
+                //.continuous()
+                .oneFix()
                 .config(builder.build())
                 .start(new OnLocationUpdatedListener() {
                     @Override
