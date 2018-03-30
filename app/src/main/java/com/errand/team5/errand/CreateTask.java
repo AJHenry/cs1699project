@@ -1,6 +1,7 @@
 package com.errand.team5.errand;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
@@ -11,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
@@ -62,7 +64,9 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         loc = getIntent().getParcelableExtra("LOCATION");
 
-        Log.d(TAG, "" + loc.getLongitude());
+        if(loc != null) {
+            Log.d(TAG, "" + loc.getLongitude());
+        }
 
         //Components
         dropOffLocation = (Button) findViewById(R.id.drop_off_button);
@@ -163,7 +167,8 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         switch (item.getItemId()) {
             case R.id.create_task:
                 //TODO Check to make sure they filled out the required fields
-                setRequest();
+                createTask();
+                //setRequest();
                 return true;
             case android.R.id.home:
                 this.finish();
@@ -252,5 +257,31 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         LatLng northeastCorner =
                 SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
         return new LatLngBounds(southwestCorner, northeastCorner);
+    }
+
+
+    public void createTask(){
+        showDialog();
+    }
+
+    public void showDialog(){
+        final Dialog dialog = new Dialog(this);
+        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(false);
+        dialog.setContentView(R.layout.summary);
+
+        //TextView text = (TextView) dialog.findViewById(R.id.text_dialog);
+        //text.setText(msg);
+
+        Button dialogButton = (Button) dialog.findViewById(R.id.summary_confirm);
+        dialogButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+
     }
 }

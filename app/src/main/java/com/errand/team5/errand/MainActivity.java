@@ -21,11 +21,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -71,6 +73,7 @@ public class MainActivity extends AppCompatActivity
 
     private TextView name;
     private TextView email;
+    private ImageView profileImage;
 
     private ListView feed;
 
@@ -140,6 +143,7 @@ public class MainActivity extends AppCompatActivity
         View headerView = navigationView.getHeaderView(0);
         name = (TextView) headerView.findViewById(R.id.name);
         email = (TextView) headerView.findViewById(R.id.email);
+        profileImage = (ImageView) headerView.findViewById(R.id.profile_image);
 
 
         // Configure sign-in to request the user's ID, email address, and basic
@@ -188,7 +192,9 @@ public class MainActivity extends AppCompatActivity
         //Set the email and name in the drawer
         email.setText(currentUser.getEmail());
         name.setText(currentUser.getDisplayName());
-        //TODO Update Picture in drawer
+
+        String imgurl = currentUser.getPhotoUrl().toString();
+        Glide.with(this).load(imgurl).into(profileImage);
 
 
 
