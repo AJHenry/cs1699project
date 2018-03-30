@@ -2,7 +2,10 @@ package com.errand.team5.errand;
 
 
 import android.location.Location;
+import android.os.Parcel;
+import android.os.Parcelable;
 
+import java.io.Serializable;
 import java.sql.Date;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -12,7 +15,8 @@ import java.sql.Timestamp;
  * This is the model for tasks for firebase
  */
 
-public class TaskModel {
+//TODO Change Serializable to Parcelable
+public class TaskModel implements Serializable {
 
     //Task identifier, created by firebase
     String taskId;

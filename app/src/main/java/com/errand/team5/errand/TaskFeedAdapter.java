@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
@@ -32,6 +33,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             TextView time;
             TextView description;
             RatingBar creatorRating;
+            ImageView profileImage;
         }
 
         public TaskFeedAdapter(ArrayList<TaskModel> data, Context context, Location currentLocation) {
@@ -60,9 +62,9 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
                 viewHolder.distance = (TextView) convertView.findViewById(R.id.distance);
                 viewHolder.price = (TextView) convertView.findViewById(R.id.price);
                 viewHolder.time = (TextView) convertView.findViewById(R.id.time);
-                viewHolder.description = (TextView) convertView.findViewById(R.id.instructions);
+                viewHolder.description = (TextView) convertView.findViewById(R.id.special_instructions);
                 viewHolder.creatorRating = (RatingBar) convertView.findViewById(R.id.creatorRating);
-
+                viewHolder.profileImage = (ImageView) convertView.findViewById(R.id.profile);
 
                 convertView.setTag(viewHolder);
             } else {

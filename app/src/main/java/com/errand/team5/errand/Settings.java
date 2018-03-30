@@ -9,8 +9,7 @@ import android.view.ViewGroup;
 
 
 /**
- * TODO
- * A simple {@link Fragment} subclass.
+ * TODO All of the settings
  */
 public class Settings extends Fragment {
 
