@@ -72,7 +72,7 @@ public class Feed extends Fragment {
         if (user == null) {
             Intent login = new Intent(getContext(), Login.class);
             startActivity(login);
-            getActivity().finish();
+            //getActivity().finish();
         } else {
             this.user = user;
         }
