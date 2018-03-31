@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +24,12 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.SphericalUtil;
+
 
 public class CreateTask extends AppCompatActivity implements View.OnClickListener {
 
@@ -42,6 +48,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     //Used for Log
     private final String TAG = "CreateTask Class";
 
+    //Current mLocation
     private Location loc;
 
     //Activity results from place picker
@@ -55,6 +62,17 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     private EditText titleInput;
     private EditText descriptionInput;
     private EditText specialInstructionsInput;
+    private NumberPicker timeTypeInput;
+    private NumberPicker timeAmountInput;
+
+    //Firebase
+    private FirebaseAuth mAuth;
+    private FirebaseUser user;
+
+
+
+    //Global Values
+    private int currentTimeSelected = 0;
 
     //TODO Check for user login
 
@@ -65,6 +83,9 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         setContentView(R.layout.activity_create_task);
         getSupportActionBar().setTitle("Create Task");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Get the references to firebase
+        mAuth = FirebaseAuth.getInstance();
 
         //Get location passed from MainActivity
         Bundle extras = getIntent().getExtras();
@@ -91,6 +112,36 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         titleInput = (EditText) findViewById(R.id.title);
         descriptionInput = (EditText) findViewById(R.id.description);
         specialInstructionsInput = (EditText) findViewById(R.id.special_instructions);
+        timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
+        timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
+
+
+        //Populate the pickers
+        timeTypeInput.setMinValue(0);
+        timeTypeInput.setMaxValue(1);
+        timeTypeInput.setDisplayedValues( new String[] { "Mins", "Hours" } );
+
+        //Populate the amount picker
+        timeAmountInput.setMinValue(0);
+        timeAmountInput.setMaxValue(2);
+        timeAmountInput.setDisplayedValues( new String[] { "15", "30", "45" } );
+
+        timeTypeInput.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                Log.d(TAG, "Called");
+                if(i == 1){
+                    timeAmountInput.setMinValue(0);
+                    timeAmountInput.setMaxValue(2);
+                    timeAmountInput.setDisplayedValues( new String[] { "15", "30", "45" } );
+                }else{
+                    timeAmountInput.setMinValue(0);
+                    timeAmountInput.setMaxValue(2);
+                    timeAmountInput.setDisplayedValues( new String[] { "1", "2", "3" } );
+                }
+            }
+        });
+
 
         errandLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +174,26 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         setTypeFocus(amount_unfocus, amount[0]);
         setTypeFocus(type_unfocus, type[0]);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        checkLogin(currentUser);
+    }
+
+    //Check if their profile is null, if so, redirect them to login
+    private void checkLogin(FirebaseUser user) {
+        // TODO Fix error where application closes after first login
+        if (user == null) {
+            Intent login = new Intent(this, Login.class);
+            startActivity(login);
+            finish();
+        } else {
+            this.user = user;
+        }
     }
 
     @Override
@@ -212,7 +283,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             //If location is not null, put a pin near there
             //WARNING, Google Place picker has a bug where it does not use setLatLngBounds correctly
             if (loc != null) {
-                Log.d(TAG, "Location available");
+                Log.d(TAG, "mLocation available");
                 //Create new latlon
                 LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
                 //Radius in meters
@@ -289,10 +360,15 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        double baseprice = costInput.getRawValue();
+        double baseprice = costInput.getRawValue()/100.0;
         String dropOffAddress = dropOffPlace.getAddress().toString();
-        String errandAddress = errandPlace.getAddress().toString();
+        //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
+
+        //Fee Calculation
+        double fees = baseprice * 0.20;
+
+        double subtotal = fees + baseprice;
 
         if(title == null || title.isEmpty()){
             //Display error underneath
@@ -313,39 +389,90 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
             dataSatisfied = false;
         }
+        /*
         if(errandAddress == null || errandAddress.isEmpty()){
             //Display error underneath
 
             dataSatisfied = false;
         }
+        */
 
         //Data is valid
         if(dataSatisfied) {
-            showSummary(title, description, baseprice, dropOffAddress, specialInstructions);
+            showSummary(title, description, baseprice, fees, subtotal, dropOffPlace, specialInstructions);
         }
     }
 
 
-    public void showSummary(String title, String description, double basePrice, String dropOffAddress, String specialInstructions){
+    public void showSummary(final String title, final String description, final double basePrice, final double fees, double subtotal, final Place dropOffPlace, final String specialInstructions){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.summary);
 
+        TextView baseCost = (TextView) dialog.findViewById(R.id.payment_base_cost);
+        TextView feeCost = (TextView) dialog.findViewById(R.id.payment_fees);
+
+        TextView subtotalText = (TextView) dialog.findViewById(R.id.payment_subtotal);
+
+        TextView specialInstructionsText = (TextView) dialog.findViewById(R.id.summary_special_instructions);
+        specialInstructionsText.setText(specialInstructions);
+        subtotalText.setText(""+subtotal);
+        baseCost.setText(""+basePrice);
+        feeCost.setText(""+fees);
+
         TextView summaryTitle = (TextView) dialog.findViewById(R.id.summary_title);
         summaryTitle.setText(title);
         TextView summaryDescription = (TextView) dialog.findViewById(R.id.summary_description);
         summaryDescription.setText(description);
-        //TextView summaryBasePrice = (TextView) dialog.findViewById(R.id.);
-        //TODO fix hacky concatenate
-        //summaryBasePrice.setText(""+basePrice);
         TextView summaryDropOffAddress = (TextView) dialog.findViewById(R.id.summary_drop_off);
-        summaryDropOffAddress.setText(dropOffAddress);
+        summaryDropOffAddress.setText(dropOffPlace.getAddress().toString());
         //TextView summaryErrandAddress = (TextView) dialog.findViewById(R.id.summary_errand);
         //summaryErrandAddress.setText(msg);
 
-        Button dialogButton = (Button) dialog.findViewById(R.id.summary_confirm);
-        dialogButton.setOnClickListener(new View.OnClickListener() {
+        //Confirm button
+        Button confirmButton = (Button) dialog.findViewById(R.id.summary_confirm);
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //dialog.dismiss();
+
+                mLocation dropOffMLocation = new mLocation(dropOffPlace.getLatLng().latitude, dropOffPlace.getLatLng().longitude);
+                //Get payment first
+                //Then add to database
+
+                //Create a new Model
+                TaskModel createdErrand = new TaskModel();
+                createdErrand.setDropOffDestination(dropOffMLocation);
+                createdErrand.setBaseCost(basePrice);
+                createdErrand.setCategory(0);
+                createdErrand.setDescription(description);
+                createdErrand.setStatus(0);
+                createdErrand.setSpecialInstructions(specialInstructions);
+                createdErrand.setPaymentCost(fees);
+                createdErrand.setTitle(title);
+
+
+
+                //Pass it to database
+                if(createTaskEntry(createdErrand)){
+                    //Display success to user
+                    Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
+
+                    //Need to set the result to ok
+                    Intent returnIntent = new Intent();
+                    setResult(Activity.RESULT_OK, returnIntent);
+                    finish();
+                }else{
+                    //Shouldn't ever happen
+                    Toast.makeText(getApplicationContext(), "Error requesting Errand, contact help", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        //Cancel button
+        Button cancelButton = (Button) dialog.findViewById(R.id.summary_cancel);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
@@ -354,5 +481,30 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         dialog.show();
 
+    }
+
+    public boolean createTaskEntry(TaskModel newErrand){
+        Log.d(TAG, "Created entry");
+
+        //Save to the reference for all tasks
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference ref = database.getReference("errands");
+        String id = ref.push().getKey();
+
+
+
+        //Set the rest of the bookkeeping data
+        newErrand.setTaskId(id);
+        newErrand.setCreatorId(user.getUid());
+        newErrand.setPublishTime(new mTimestamp());
+
+        ref.child(id).setValue(newErrand);
+
+        //Save to the reference for users tasks
+        //DatabaseReference createdTasks = database.getReference("created_tasks");
+        //createdTasks.child(user.getUid()).push().setValue(newErrand.getTaskId());
+
+        //Tell them it was successful
+        return true;
     }
 }
