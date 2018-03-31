@@ -190,7 +190,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
-            finish();
+            //finish();
         } else {
             this.user = user;
         }
