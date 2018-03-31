@@ -92,7 +92,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             }
 
 
-            viewHolder.price.setText(Float.toString(task.getBaseCost()));
+            viewHolder.price.setText(Double.toString(task.getBaseCost()));
             //viewHolder.time.setText(dataModel.getTimeToComplete());
 
             // Return the completed view to render on screen

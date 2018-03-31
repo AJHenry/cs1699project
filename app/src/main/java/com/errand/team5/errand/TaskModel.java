@@ -42,11 +42,11 @@ public class TaskModel implements Serializable {
     int timeToCompleteMins;
 
     //Cost of errand
-    float baseCost;
+    double baseCost;
 
     //Cost of money service
     //i.e paypal's cut
-    float paymentCost;
+    double paymentCost;
 
     //Title of post
     String title;
@@ -81,6 +81,9 @@ public class TaskModel implements Serializable {
         this.specialInstructions = specialInstructions;
         this.dropOffDestination = dropOffDestination;
         this.errandLocation = errandLocation;
+    }
+
+    public TaskModel() {
     }
 
     public String getTaskId() {
@@ -148,19 +151,19 @@ public class TaskModel implements Serializable {
         this.timeToCompleteMins = timeToCompleteMins;
     }
 
-    public float getBaseCost() {
+    public double getBaseCost() {
         return baseCost;
     }
 
-    public void setBaseCost(float baseCost) {
+    public void setBaseCost(double baseCost) {
         this.baseCost = baseCost;
     }
 
-    public float getPaymentCost() {
+    public double getPaymentCost() {
         return paymentCost;
     }
 
-    public void setPaymentCost(float paymentCost) {
+    public void setPaymentCost(double paymentCost) {
         this.paymentCost = paymentCost;
     }
 

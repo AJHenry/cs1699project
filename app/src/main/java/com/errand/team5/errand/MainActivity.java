@@ -94,7 +94,7 @@ public class MainActivity extends AppCompatActivity
         Location loc = lastKnownLocation;
         intent.putExtra("LAT", loc.getLatitude());
         intent.putExtra("LONG", loc.getLongitude());
-        startActivity(intent);
+        startActivityForResult(intent, CREATE_TASK_REQUEST);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class MainActivity extends AppCompatActivity
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 //Successfully create task
-                Toast.makeText(this, "Result turned ok", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
             } else {
                 //Failure
                 Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
