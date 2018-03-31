@@ -1,14 +1,7 @@
 package com.errand.team5.errand;
 
 
-import android.location.Location;
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Time;
-import java.sql.Timestamp;
 
 /**
  * Created by Andrew on 3/7/2018.
@@ -36,17 +29,17 @@ public class TaskModel implements Serializable {
     int status;
 
     //Time it was published
-    Timestamp publishTime;
+    mTimestamp publishTime;
 
     //Time to complete errand, in minutes
     int timeToCompleteMins;
 
     //Cost of errand
-    float baseCost;
+    double baseCost;
 
     //Cost of money service
     //i.e paypal's cut
-    float paymentCost;
+    double paymentCost;
 
     //Title of post
     String title;
@@ -57,17 +50,19 @@ public class TaskModel implements Serializable {
     //Special instructions
     String specialInstructions;
 
-    //Location of person requesting
-    Location dropOffDestination;
+    //mLocation of person requesting
+    mLocation dropOffDestination;
 
-    //Location of errand
-    Location errandLocation;
+    //mLocation of errand
+    mLocation errandMLocation;
 
     /* AUTO GENERATED */
 
-    public TaskModel(String taskId, String creatorId, int category, int status, Timestamp publishTime,
-                     int timeToCompleteMins, float baseCost, float paymentCost, String title, String description,
-                     String specialInstructions, Location dropOffDestination, Location errandLocation) {
+    public TaskModel(){
+
+    }
+
+    public TaskModel(String taskId, String creatorId, int category, int status, mTimestamp publishTime, int timeToCompleteMins, double baseCost, double paymentCost, String title, String description, String specialInstructions, mLocation dropOffDestination, mLocation errandMLocation) {
         this.taskId = taskId;
         this.creatorId = creatorId;
         this.category = category;
@@ -80,28 +75,11 @@ public class TaskModel implements Serializable {
         this.description = description;
         this.specialInstructions = specialInstructions;
         this.dropOffDestination = dropOffDestination;
-        this.errandLocation = errandLocation;
+        this.errandMLocation = errandMLocation;
     }
 
     public String getTaskId() {
         return taskId;
-
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public void setTaskId(String taskId) {
@@ -132,11 +110,11 @@ public class TaskModel implements Serializable {
         this.status = status;
     }
 
-    public Timestamp getPublishTime() {
+    public mTimestamp getPublishTime() {
         return publishTime;
     }
 
-    public void setPublishTime(Timestamp publishTime) {
+    public void setPublishTime(mTimestamp publishTime) {
         this.publishTime = publishTime;
     }
 
@@ -148,20 +126,36 @@ public class TaskModel implements Serializable {
         this.timeToCompleteMins = timeToCompleteMins;
     }
 
-    public float getBaseCost() {
+    public double getBaseCost() {
         return baseCost;
     }
 
-    public void setBaseCost(float baseCost) {
+    public void setBaseCost(double baseCost) {
         this.baseCost = baseCost;
     }
 
-    public float getPaymentCost() {
+    public double getPaymentCost() {
         return paymentCost;
     }
 
-    public void setPaymentCost(float paymentCost) {
+    public void setPaymentCost(double paymentCost) {
         this.paymentCost = paymentCost;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getSpecialInstructions() {
@@ -172,19 +166,19 @@ public class TaskModel implements Serializable {
         this.specialInstructions = specialInstructions;
     }
 
-    public Location getDropOffDestination() {
+    public mLocation getDropOffDestination() {
         return dropOffDestination;
     }
 
-    public void setDropOffDestination(Location dropOffDestination) {
+    public void setDropOffDestination(mLocation dropOffDestination) {
         this.dropOffDestination = dropOffDestination;
     }
 
-    public Location getErrandLocation() {
-        return errandLocation;
+    public mLocation getErrandMLocation() {
+        return errandMLocation;
     }
 
-    public void setErrandLocation(Location errandLocation) {
-        this.errandLocation = errandLocation;
+    public void setErrandMLocation(mLocation errandMLocation) {
+        this.errandMLocation = errandMLocation;
     }
 }
