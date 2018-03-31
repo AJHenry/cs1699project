@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,6 +56,11 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     private EditText titleInput;
     private EditText descriptionInput;
     private EditText specialInstructionsInput;
+    private NumberPicker timeTypeInput;
+    private NumberPicker timeAmountInput;
+
+    //Global Values
+    private int currentTimeSelected = 0;
 
     //TODO Check for user login
 
@@ -91,6 +97,35 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         titleInput = (EditText) findViewById(R.id.title);
         descriptionInput = (EditText) findViewById(R.id.description);
         specialInstructionsInput = (EditText) findViewById(R.id.special_instructions);
+        timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
+        timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
+
+        //Populate the pickers
+        timeTypeInput.setMinValue(0);
+        timeTypeInput.setMaxValue(1);
+        timeTypeInput.setDisplayedValues( new String[] { "Mins", "Hours" } );
+
+        //Populate the amount picker
+        timeAmountInput.setMinValue(0);
+        timeAmountInput.setMaxValue(2);
+        timeAmountInput.setDisplayedValues( new String[] { "15", "30", "45" } );
+
+        timeTypeInput.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker numberPicker, int i, int i1) {
+                Log.d(TAG, "Called");
+                if(i == 1){
+                    timeAmountInput.setMinValue(0);
+                    timeAmountInput.setMaxValue(2);
+                    timeAmountInput.setDisplayedValues( new String[] { "15", "30", "45" } );
+                }else{
+                    timeAmountInput.setMinValue(0);
+                    timeAmountInput.setMaxValue(2);
+                    timeAmountInput.setDisplayedValues( new String[] { "1", "2", "3" } );
+                }
+            }
+        });
+
 
         errandLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -291,7 +326,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         String description = descriptionInput.getText().toString();
         double baseprice = costInput.getRawValue();
         String dropOffAddress = dropOffPlace.getAddress().toString();
-        String errandAddress = errandPlace.getAddress().toString();
+        //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
 
         if(title == null || title.isEmpty()){
@@ -313,11 +348,13 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
             dataSatisfied = false;
         }
+        /*
         if(errandAddress == null || errandAddress.isEmpty()){
             //Display error underneath
 
             dataSatisfied = false;
         }
+        */
 
         //Data is valid
         if(dataSatisfied) {
