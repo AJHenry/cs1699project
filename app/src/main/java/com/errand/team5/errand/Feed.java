@@ -1,16 +1,8 @@
 package com.errand.team5.errand;
 
 
-import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,21 +10,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.location.Location;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Locale;
 
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
@@ -116,7 +101,7 @@ public class Feed extends Fragment {
 
 
     /**
-     * Location Service
+     * mLocation Service
      * Calls the updateUI method
      */
     private void startLocationService() {
@@ -160,13 +145,11 @@ public class Feed extends Fragment {
         taskList = new ArrayList<>();
 
         //Create a new drop off location
-        Location dropOff = new Location("");
-        dropOff.setLongitude(-125.076);
-        dropOff.setLatitude(37.986);
+        mLocation dropOff = new mLocation(37.986,-125.076);
 
-        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new Timestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
+        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
 
         taskList.add(exampleTask);
         taskList.add(exampleTask1);

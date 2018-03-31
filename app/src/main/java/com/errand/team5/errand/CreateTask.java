@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
-import com.bumptech.glide.Glide;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -27,12 +26,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.SphericalUtil;
 
-import java.sql.Timestamp;
 
 public class CreateTask extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,7 +48,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     //Used for Log
     private final String TAG = "CreateTask Class";
 
-    //Current Location
+    //Current mLocation
     private Location loc;
 
     //Activity results from place picker
@@ -286,7 +283,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             //If location is not null, put a pin near there
             //WARNING, Google Place picker has a bug where it does not use setLatLngBounds correctly
             if (loc != null) {
-                Log.d(TAG, "Location available");
+                Log.d(TAG, "mLocation available");
                 //Create new latlon
                 LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
                 //Radius in meters
@@ -440,15 +437,13 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             public void onClick(View v) {
                 //dialog.dismiss();
 
-                Location dropOffLocation = new Location("");
-                dropOffLocation.setLatitude(dropOffPlace.getLatLng().latitude);
-                dropOffLocation.setLongitude(dropOffPlace.getLatLng().longitude);
+                mLocation dropOffMLocation = new mLocation(dropOffPlace.getLatLng().latitude, dropOffPlace.getLatLng().longitude);
                 //Get payment first
                 //Then add to database
 
                 //Create a new Model
                 TaskModel createdErrand = new TaskModel();
-                createdErrand.setDropOffDestination(dropOffLocation);
+                createdErrand.setDropOffDestination(dropOffMLocation);
                 createdErrand.setBaseCost(basePrice);
                 createdErrand.setCategory(0);
                 createdErrand.setDescription(description);
@@ -463,6 +458,10 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 if(createTaskEntry(createdErrand)){
                     //Display success to user
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
+
+                    //Need to set the result to ok
+                    Intent returnIntent = new Intent();
+                    setResult(Activity.RESULT_OK, returnIntent);
                     finish();
                 }else{
                     //Shouldn't ever happen
@@ -486,6 +485,8 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     public boolean createTaskEntry(TaskModel newErrand){
         Log.d(TAG, "Created entry");
+
+        //Save to the reference for all tasks
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("errands");
         String id = ref.push().getKey();
@@ -495,9 +496,13 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         //Set the rest of the bookkeeping data
         newErrand.setTaskId(id);
         newErrand.setCreatorId(user.getUid());
-        newErrand.setPublishTime(new Timestamp(System.currentTimeMillis()));
+        newErrand.setPublishTime(new mTimestamp());
 
         ref.child(id).setValue(newErrand);
+
+        //Save to the reference for users tasks
+        //DatabaseReference createdTasks = database.getReference("created_tasks");
+        //createdTasks.child(user.getUid()).push().setValue(newErrand.getTaskId());
 
         //Tell them it was successful
         return true;

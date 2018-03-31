@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity
 
     private ListView feed;
 
-    //Location data variables
+    //mLocation data variables
     //See here for more details
     //https://github.com/codepath/android_guides/wiki/Retrieving-Location-with-LocationServices-API
     private Location lastKnownLocation = null;
@@ -195,8 +195,10 @@ public class MainActivity extends AppCompatActivity
         email.setText(currentUser.getEmail());
         name.setText(currentUser.getDisplayName());
 
-        String imgurl = currentUser.getPhotoUrl().toString();
-        Glide.with(this).load(imgurl).into(profileImage);
+        //Set the picture
+        //TODO needs to be made a circle
+        String imgUrl = currentUser.getPhotoUrl().toString();
+        Glide.with(this).load(imgUrl).into(profileImage);
 
 
 
@@ -341,7 +343,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * Location Service
+     * mLocation Service
      * Calls the updateUI method
      */
     private void startLocationService() {
@@ -367,7 +369,7 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
                         Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
-                        //Location is ready to be used
+                        //mLocation is ready to be used
                         locationReady = true;
                         updateUI();
                     }
