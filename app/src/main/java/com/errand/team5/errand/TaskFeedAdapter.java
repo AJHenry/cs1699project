@@ -81,7 +81,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             //Change later
             viewHolder.duration.setText("20 mins ago");
 
-            //Location
+            //mLocation
             //Needs more accurate text descriptions, like feet
             if(location != null) {
                 //Calculate the distance
