@@ -50,6 +50,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     //Current mLocation
     private Location loc;
+    private boolean toSend = false;
 
     //Activity results from place picker
     private final int DROP_OFF_PLACE_PICKER = 1;
@@ -110,6 +111,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             costInput.setValue(taskData.getPrice());
             descriptionInput.setText(taskData.getDescription());
             specialInstructionsInput.setText(taskData.getSpecialInstructions());
+            toSend = true;
         }
 
         //Populate the pickers
@@ -466,9 +468,22 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
 
                     //Need to set the result to ok
-                    Intent returnIntent = new Intent();
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
+                    if (!toSend){
+                        Intent returnIntent = new Intent();
+                        setResult(Activity.RESULT_OK, returnIntent);
+                        finish();
+                    }
+                    else {
+                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
+                        Bundle extras = new Bundle();
+                        extras.putInt("whichTrig",4);
+                        extras.putString("store", title);
+
+                        if (launchIntent != null) {
+                            launchIntent.putExtras(extras);
+                            startActivity(launchIntent);//null pointer check in case package name was not found
+                        }
+                    }
                 }else{
                     //Shouldn't ever happen
                     Toast.makeText(getApplicationContext(), "Error requesting Errand, contact help", Toast.LENGTH_LONG).show();
