@@ -81,7 +81,12 @@ public class Task extends AppCompatActivity {
         checkLogin(currentUser);
 
     }
-
+    
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
 
     public void showProfile(){
         final Dialog dialog = new Dialog(this);
