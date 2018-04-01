@@ -34,12 +34,12 @@ import io.nlopez.smartlocation.location.config.LocationParams;
 public class Feed extends Fragment {
 
     private ListView feed;
+    private ProgressBar spinner;
     private ArrayList<TaskModel> taskList;
     private Location lastKnownLocation;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
-    private ProgressBar spinner;
     private boolean userReady;
     private boolean locationReady;
 
@@ -66,8 +66,10 @@ public class Feed extends Fragment {
 
         //Firebase instance
         mAuth = FirebaseAuth.getInstance();
-        spinner = (ProgressBar) getView().findViewById(R.id.spinner);
 
+        //TODO THIS WILL CAUSE AN ERROR, sometimes
+        feed = (ListView) getView().findViewById(R.id.task_feed);
+        spinner = (ProgressBar) getView().findViewById(R.id.spinner);
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
@@ -86,10 +88,8 @@ public class Feed extends Fragment {
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
-        //start spinner
         spinner.setVisibility(View.VISIBLE);
         startLocationService();
-        //end spinner
         spinner.setVisibility(View.GONE);
         super.onResume();
     }
@@ -128,7 +128,6 @@ public class Feed extends Fragment {
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
                         Log.d(TAG, "Lon: "+lastKnownLocation.getLongitude()+" Lat: "+lastKnownLocation.getLatitude());
-
                         updateUI(location);
                     }
                 });
@@ -142,7 +141,7 @@ public class Feed extends Fragment {
 
     private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
         Log.d(TAG, "Generated feed for home screen");
-        feed = (ListView) getView().findViewById(R.id.task_feed);
+
 
         TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), location);
 
