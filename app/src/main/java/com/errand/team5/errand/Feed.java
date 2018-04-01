@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.location.Location;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +39,7 @@ public class Feed extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
+    private ProgressBar spinner;
     private boolean userReady;
     private boolean locationReady;
 
@@ -64,6 +66,7 @@ public class Feed extends Fragment {
 
         //Firebase instance
         mAuth = FirebaseAuth.getInstance();
+        spinner = (ProgressBar) getView().findViewById(R.id.spinner);
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -83,7 +86,11 @@ public class Feed extends Fragment {
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
+        //start spinner
+        spinner.setVisibility(View.VISIBLE);
         startLocationService();
+        //end spinner
+        spinner.setVisibility(View.GONE);
         super.onResume();
     }
 
@@ -121,6 +128,7 @@ public class Feed extends Fragment {
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
                         Log.d(TAG, "Lon: "+lastKnownLocation.getLongitude()+" Lat: "+lastKnownLocation.getLatitude());
+
                         updateUI(location);
                     }
                 });
