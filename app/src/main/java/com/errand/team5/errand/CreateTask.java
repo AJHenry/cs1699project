@@ -106,7 +106,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         }
 
         //Components
-        dropOffLocation = (Button) findViewById(R.id.drop_off_button);
+        dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
         errandLocation = (Button) findViewById(R.id.errand_location_button);
         costInput = (CurrencyEditText) findViewById(R.id.cost);
         titleInput = (EditText) findViewById(R.id.title);
