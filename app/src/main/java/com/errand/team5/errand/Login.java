@@ -22,6 +22,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class Login extends AppCompatActivity {
 
@@ -29,6 +31,8 @@ public class Login extends AppCompatActivity {
     private final int RC_SIGN_IN = 1;
     private final String TAG = "DEBUG";
     private FirebaseAuth mAuth;
+    private DatabaseReference db;
+    private DatabaseReference userTable;
 
 
     @Override
@@ -37,6 +41,8 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //Firebase
+        db = FirebaseDatabase.getInstance().getReference();
+        userTable = db.child("users");
         mAuth = FirebaseAuth.getInstance();
 
         // Set the dimensions of the sign-in button.
@@ -127,6 +133,9 @@ public class Login extends AppCompatActivity {
 
     private void updateUI(FirebaseUser fb){
         Toast.makeText(this, "Successfully logged in", Toast.LENGTH_LONG).show();
+        DatabaseReference newUser = userTable.child(fb.getUid());
+
+        newUser.setValue(fb);
         finish();
     }
 }
