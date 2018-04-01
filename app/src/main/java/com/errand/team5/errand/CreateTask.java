@@ -190,7 +190,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
-            finish();
+            //finish();
         } else {
             this.user = user;
         }
@@ -365,6 +365,16 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
 
+        int timeToComplete = 0;
+        if (timeTypeInput.getValue() == 1) {
+            // HOUR
+            timeToComplete = (timeAmountInput.getValue() + 1) * 60;
+        } else {
+            //MIN
+            timeToComplete = (timeAmountInput.getValue() + 1) * 15;
+        }
+
+
         //Fee Calculation
         double fees = baseprice * 0.20;
 
@@ -399,12 +409,12 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         //Data is valid
         if(dataSatisfied) {
-            showSummary(title, description, baseprice, fees, subtotal, dropOffPlace, specialInstructions);
+            showSummary(title, description, baseprice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
         }
     }
 
 
-    public void showSummary(final String title, final String description, final double basePrice, final double fees, double subtotal, final Place dropOffPlace, final String specialInstructions){
+    public void showSummary(final String title, final String description, final double basePrice, final double fees, double subtotal, final Place dropOffPlace, final String specialInstructions, final int timeToComplete){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
@@ -451,7 +461,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 createdErrand.setSpecialInstructions(specialInstructions);
                 createdErrand.setPaymentCost(fees);
                 createdErrand.setTitle(title);
-
+                createdErrand.setTimeToCompleteMins(timeToComplete);
 
 
                 //Pass it to database

@@ -28,6 +28,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -58,6 +59,9 @@ public class MainActivity extends AppCompatActivity
     private ViewFlipper vf;
     //The request code for creating a task
     static final int CREATE_TASK_REQUEST = 1;
+
+    //The result code for loggin in
+    private final int SIGN_IN = 10101;
 
     //The request code for location permissions
     private final int LOCATION_PERMISSION = 99;
@@ -109,6 +113,9 @@ public class MainActivity extends AppCompatActivity
                 //Failure
                 Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
+        }
+        else if (requestCode == SIGN_IN){
+            fillUserUI(mAuth.getCurrentUser());
         }
     }
 
@@ -191,18 +198,17 @@ public class MainActivity extends AppCompatActivity
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
 
+    }
+
+    private void fillUserUI(FirebaseUser currentUser){
         //Set the email and name in the drawer
         email.setText(currentUser.getEmail());
         name.setText(currentUser.getDisplayName());
 
-        //Set the picture
-        //TODO needs to be made a circle
-        String imgUrl = currentUser.getPhotoUrl().toString();
-        Glide.with(this).load(imgUrl).into(profileImage);
-
-
-
+        String imgurl = currentUser.getPhotoUrl().toString();
+        Glide.with(this).load(imgurl).apply(RequestOptions.circleCropTransform()).into(profileImage);
     }
+
 
     @Override
     public void onResume() {
@@ -223,11 +229,12 @@ public class MainActivity extends AppCompatActivity
         // TODO Fix error where application closes after first login
         if (user == null) {
             Intent login = new Intent(this, Login.class);
-            startActivity(login);
-            finish();
+            startActivityForResult(login, SIGN_IN);
+
         } else {
             this.user = user;
             accountReady = true;
+            fillUserUI(user);
         }
     }
 
