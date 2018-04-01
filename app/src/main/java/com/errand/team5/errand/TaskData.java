@@ -14,6 +14,16 @@ public class TaskData implements Serializable {
     private String type;
     private String address;
     private String address2;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private String description;
     private String city;
     private String state;
     private String zip;
