@@ -28,6 +28,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity
         name.setText(currentUser.getDisplayName());
 
         String imgurl = currentUser.getPhotoUrl().toString();
-        Glide.with(this).load(imgurl).into(profileImage);
+        Glide.with(this).load(imgurl).apply(RequestOptions.circleCropTransform()).into(profileImage);
     }
 
 
