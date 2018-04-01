@@ -91,19 +91,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         Bundle extras = getIntent().getExtras();
 
         //Get the data if it is not nll
-        if (extras != null) {
-            Log.d(TAG, "Data sent from intent");
-            double lat = extras.getDouble("LAT");
-            double lng = extras.getDouble("LONG");
-            loc = new Location("");
-            loc.setLatitude(lat);
-            loc.setLongitude(lng);
-            Log.d(TAG, "Long: " + loc.getLongitude());
-            Log.d(TAG, "Lat: " + loc.getLatitude());
 
-            //Call the picker for the current location
-            dropOffPicker();
-        }
 
         //Components
         dropOffLocation = (Button) findViewById(R.id.drop_off_button);
@@ -115,6 +103,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
 
+        TaskData taskData;
+        if ((taskData = (TaskData)extras.getSerializable("taskData")) != null){
+
+            titleInput.setText(taskData.getTitle());
+            costInput.setValue(taskData.getPrice());
+            descriptionInput.setText(taskData.getDescription());
+            specialInstructionsInput.setText(taskData.getSpecialInstructions());
+        }
 
         //Populate the pickers
         timeTypeInput.setMinValue(0);
