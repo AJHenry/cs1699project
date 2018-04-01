@@ -11,11 +11,16 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.location.Location;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -32,6 +37,9 @@ public class Feed extends Fragment {
     private Location lastKnownLocation;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+
+    private boolean userReady;
+    private boolean locationReady;
 
     private final String TAG = "FeedClass";
 
@@ -54,13 +62,8 @@ public class Feed extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        //Firebase instance
         mAuth = FirebaseAuth.getInstance();
-
-        // Write a message to the database
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("users");
-
-        //GoogleSignInAccount acc = GoogleSignIn.getLastSignedInAccount(getActivity());
 
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -72,15 +75,9 @@ public class Feed extends Fragment {
         if (user == null) {
             Intent login = new Intent(getContext(), Login.class);
             startActivity(login);
-            //getActivity().finish();
         } else {
             this.user = user;
         }
-    }
-
-    private void updateUI(){
-        //Example RULE SET
-        myRef.child(user.getUid()).setValue("Hello, World!");
     }
 
     @Override
@@ -96,9 +93,6 @@ public class Feed extends Fragment {
         stopLocation();
         super.onPause();
     }
-
-
-
 
     /**
      * mLocation Service
@@ -127,7 +121,7 @@ public class Feed extends Fragment {
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
                         Log.d(TAG, "Lon: "+lastKnownLocation.getLongitude()+" Lat: "+lastKnownLocation.getLatitude());
-                        updateUI(lastKnownLocation);
+                        updateUI(location);
                     }
                 });
     }
@@ -138,42 +132,55 @@ public class Feed extends Fragment {
                 .stop();
     }
 
-    private void generateFeed(Location location) {
-        Log.d(TAG, "Generated feed");
+    private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
+        Log.d(TAG, "Generated feed for home screen");
         feed = (ListView) getView().findViewById(R.id.task_feed);
 
-        taskList = new ArrayList<>();
-
-        //Create a new drop off location
-        mLocation dropOff = new mLocation(37.986,-125.076);
-
-        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
-
-        taskList.add(exampleTask);
-        taskList.add(exampleTask1);
-        taskList.add(exampleTask2);
-
-        //taskList.add(new TaskModel("A", "Coffee Run", "15 mins est.", 10, "I would like a Venti Coffee with 3 cream and 3 sugar", 4.2f));
-        //taskList.add(new TaskModel("B", "Fold Laundry", "2 hrs est.", 20, "I will provide the detergent and dryer sheets, I need someone to load and fold my laundry", 2.8f));
-        //taskList.add(new TaskModel("C", "Burger King Delivery", "30 mins est.", 12, "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", 4.6f));
-
-        TaskFeedAdapter adapter = new TaskFeedAdapter(taskList, getView().getContext(), location);
+        TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), location);
 
         feed.setAdapter(adapter);
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent task = new Intent(getContext(), Task.class);
-                task.putExtra("taskID", taskList.get(position).getTaskId());
+                task.putExtra("taskId", errandList.get(position).getTaskId());
                 startActivity(task);
             }
         });
     }
 
-    private void updateUI(Location location){
+    private void updateUI(final Location location){
         //TODO decide when to update
-        generateFeed(location);
+
+        // Write a message to the database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+        //Query database for all tasks with creator id of this user
+        DatabaseReference myTasksRef = database.getReference("errands");
+
+        myTasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    ArrayList<TaskModel> errands = new ArrayList<>();
+                    // dataSnapshot is the "issue" node with all children with id 0
+                    for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
+                        //Add the errand to the list
+                        TaskModel errand = errandMap.getValue(TaskModel.class);
+                        errands.add(errand);
+                    }
+                    generateFeed(errands, location);
+                }else{
+                    //TODO no data found for the user
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                //Should not happen
+                Toast.makeText(getContext(), "Error reading Errands from Firebase", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
