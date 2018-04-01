@@ -134,6 +134,7 @@ public class Login extends AppCompatActivity {
     private void updateUI(FirebaseUser fb){
         Toast.makeText(this, "Successfully logged in", Toast.LENGTH_LONG).show();
         DatabaseReference newUser = userTable.child(fb.getUid());
+
         newUser.setValue(fb);
         finish();
     }
