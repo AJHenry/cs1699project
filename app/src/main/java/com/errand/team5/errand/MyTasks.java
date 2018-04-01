@@ -63,7 +63,7 @@ public class MyTasks extends Fragment {
         if (user == null) {
             Intent login = new Intent(getContext(), Login.class);
             startActivity(login);
-            getActivity().finish();
+            //getActivity().finish();
         } else {
             this.user = user;
             updateUI();

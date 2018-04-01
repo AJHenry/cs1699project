@@ -54,7 +54,7 @@ public class Account extends Fragment {
         if (user == null) {
             Intent login = new Intent(getActivity(), Login.class);
             startActivity(login);
-            getActivity().finish();
+            //getActivity().finish();
         }
     }
 
