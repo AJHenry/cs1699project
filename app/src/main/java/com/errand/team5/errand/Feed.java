@@ -65,6 +65,9 @@ public class Feed extends Fragment {
         //Firebase instance
         mAuth = FirebaseAuth.getInstance();
 
+        //TODO THIS WILL CAUSE AN ERROR, sometimes
+        feed = (ListView) getView().findViewById(R.id.task_feed);
+
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
@@ -134,7 +137,7 @@ public class Feed extends Fragment {
 
     private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
         Log.d(TAG, "Generated feed for home screen");
-        feed = (ListView) getView().findViewById(R.id.task_feed);
+
 
         TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), location);
 
