@@ -50,6 +50,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     //Current mLocation
     private Location loc;
+    private boolean toSend = false;
 
     //Activity results from place picker
     private final int DROP_OFF_PLACE_PICKER = 1;
@@ -91,19 +92,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         Bundle extras = getIntent().getExtras();
 
         //Get the data if it is not nll
-        if (extras != null) {
-            Log.d(TAG, "Data sent from intent");
-            double lat = extras.getDouble("LAT");
-            double lng = extras.getDouble("LONG");
-            loc = new Location("");
-            loc.setLatitude(lat);
-            loc.setLongitude(lng);
-            Log.d(TAG, "Long: " + loc.getLongitude());
-            Log.d(TAG, "Lat: " + loc.getLatitude());
 
-            //Call the picker for the current location
-            dropOffPicker();
-        }
 
         //Components
         dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
@@ -115,6 +104,15 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
 
+        TaskData taskData;
+        if ((taskData = (TaskData)extras.getSerializable("taskData")) != null){
+
+            titleInput.setText(taskData.getTitle());
+            costInput.setValue(taskData.getPrice());
+            descriptionInput.setText(taskData.getDescription());
+            specialInstructionsInput.setText(taskData.getSpecialInstructions());
+            toSend = true;
+        }
 
         //Populate the pickers
         timeTypeInput.setMinValue(0);
@@ -470,9 +468,22 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
 
                     //Need to set the result to ok
-                    Intent returnIntent = new Intent();
-                    setResult(Activity.RESULT_OK, returnIntent);
-                    finish();
+                    if (!toSend){
+                        Intent returnIntent = new Intent();
+                        setResult(Activity.RESULT_OK, returnIntent);
+                        finish();
+                    }
+                    else {
+                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
+                        Bundle extras = new Bundle();
+                        extras.putInt("whichTrig",4);
+                        extras.putString("store", title);
+
+                        if (launchIntent != null) {
+                            launchIntent.putExtras(extras);
+                            startActivity(launchIntent);//null pointer check in case package name was not found
+                        }
+                    }
                 }else{
                     //Shouldn't ever happen
                     Toast.makeText(getApplicationContext(), "Error requesting Errand, contact help", Toast.LENGTH_LONG).show();

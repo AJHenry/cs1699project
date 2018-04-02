@@ -1,6 +1,7 @@
 package com.errand.team5.errand;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -134,8 +135,13 @@ public class Login extends AppCompatActivity {
     private void updateUI(FirebaseUser fb){
         Toast.makeText(this, "Successfully logged in", Toast.LENGTH_LONG).show();
         DatabaseReference newUser = userTable.child(fb.getUid());
+        String uid = fb.getUid();
+        String photoUrl = fb.getPhotoUrl().toString();
+        String displayName = fb.getDisplayName();
+        String email = fb.getEmail();
+        User user = new User(uid, photoUrl, displayName, email);
 
-        newUser.setValue(fb);
+        newUser.setValue(user);
         finish();
     }
 }
