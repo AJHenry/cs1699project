@@ -94,9 +94,11 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
         }
 
         creator = task.getUser();
-        String imgurl = creator.getPhotoUrl();
-        Glide.with(getContext()).load(imgurl).apply(RequestOptions.circleCropTransform()).into(viewHolder.profileImage);
-
+        //Make sure the user isn't null
+        if(creator != null) {
+            String imgurl = creator.getPhotoUrl();
+            Glide.with(getContext()).load(imgurl).apply(RequestOptions.circleCropTransform()).into(viewHolder.profileImage);
+        }
 
         viewHolder.title.setText(task.getTitle());
         viewHolder.description.setText(task.getDescription());
@@ -104,15 +106,19 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
 
         //Change later
         viewHolder.timestamp.setText(getTimeAgo(task.getPublishTime().getTime()));
+        Log.d(TAG, task.getPublishTime().getTime()+"");
 
         //mLocation
         //Needs more accurate text descriptions, like feet
         if (location != null) {
             //Calculate the distance
             float distance = location.distanceTo(task.getDropOffDestination());
+
+            String distanceText = DistanceFormatter.format((int)distance);
             //Meters to miles
             int miles = (int) (distance * 0.000621371192);
-            viewHolder.distance.setText(miles + " miles away");
+
+            viewHolder.distance.setText(distanceText+" away");
         }
 
         //Set the price tag
@@ -152,15 +158,20 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
 
-    public static String getTimeAgo(long time) {
+    public String getTimeAgo(long time) {
         if (time < 1000000000000L) {
             // if timestamp given in seconds, convert to millis
             time *= 1000;
         }
 
+        //TODO Fix issue with people submitting wrong timestamp
         long now = System.currentTimeMillis();
         if (time > now || time <= 0) {
-            return null;
+            Log.d(TAG, "Error in timestamp");
+            Log.d(TAG, "Given: "+time);
+            Log.d(TAG, "Actual: "+now);
+            return "just now";
+            //return null;
         }
 
         // TODO: localize
