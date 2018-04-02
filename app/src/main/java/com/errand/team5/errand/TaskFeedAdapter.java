@@ -10,6 +10,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -24,6 +33,8 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
     private Context mContext;
     private ArrayList<TaskModel> dataSet;
     private Location location;
+    private User creator;
+
 
         // View lookup cache
         private static class ViewHolder {
@@ -48,7 +59,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             // Get the data item for this position
             TaskModel task = getItem(position);
             // Check if an existing view is being reused, otherwise inflate the view
-            ViewHolder viewHolder; // view lookup cache stored in tag
+            final ViewHolder viewHolder; // view lookup cache stored in tag
 
             if (convertView == null) {
 
@@ -79,6 +90,31 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             }
 
             //Display the data
+            // Write a message to the database
+            final FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+            //Query database for all tasks with creator id of this user
+            DatabaseReference myTasksRef = database.getReference("users").child(task.getCreatorId());
+
+            myTasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if (dataSnapshot.exists()) {
+                        creator = dataSnapshot.getValue(User.class);
+                        String imgurl = creator.getPhotoUrl();
+                        Glide.with(getContext()).load(imgurl).apply(RequestOptions.circleCropTransform()).into(viewHolder.profileImage);
+                    }else{
+                        //TODO no data found for the user, should not happen
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    //Should not happen
+                    Toast.makeText(getContext(), "Error reading Errands from Firebase", Toast.LENGTH_LONG).show();
+                }
+            });
 
 
             viewHolder.title.setText(task.getTitle());
@@ -111,7 +147,14 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
         final Dialog dialog = new Dialog(getContext());
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
-        dialog.setContentView(R.layout.summary);
+        dialog.setContentView(R.layout.fragment_profile);
+
+        ImageView img = (ImageView) dialog.findViewById(R.id.profile_picture);
+        String imgurl = creator.getPhotoUrl();
+        Glide.with(getContext())
+                .load(imgurl)
+                .apply(RequestOptions.circleCropTransform())
+                .into(img);
 
         //Do processing here
 
