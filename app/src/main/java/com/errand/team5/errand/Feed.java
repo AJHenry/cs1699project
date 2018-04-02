@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.location.Location;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +34,7 @@ import io.nlopez.smartlocation.location.config.LocationParams;
 public class Feed extends Fragment {
 
     private ListView feed;
+    private ProgressBar spinner;
     private ArrayList<TaskModel> taskList;
     private Location lastKnownLocation;
     private FirebaseAuth mAuth;
@@ -67,7 +69,7 @@ public class Feed extends Fragment {
 
         //TODO THIS WILL CAUSE AN ERROR, sometimes
         feed = (ListView) getView().findViewById(R.id.task_feed);
-
+        spinner = (ProgressBar) getView().findViewById(R.id.spinner);
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
@@ -86,7 +88,9 @@ public class Feed extends Fragment {
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
+        spinner.setVisibility(View.VISIBLE);
         startLocationService();
+        spinner.setVisibility(View.GONE);
         super.onResume();
     }
 
