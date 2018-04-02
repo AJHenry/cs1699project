@@ -56,13 +56,16 @@ public class TaskModel implements Serializable {
     //mLocation of errand
     mLocation errandMLocation;
 
+    //User of person
+    User user;
+
     /* AUTO GENERATED */
 
     public TaskModel(){
 
     }
 
-    public TaskModel(String taskId, String creatorId, int category, int status, mTimestamp publishTime, int timeToCompleteMins, double baseCost, double paymentCost, String title, String description, String specialInstructions, mLocation dropOffDestination, mLocation errandMLocation) {
+    public TaskModel(String taskId, String creatorId, int category, int status, mTimestamp publishTime, int timeToCompleteMins, double baseCost, double paymentCost, String title, String description, String specialInstructions, mLocation dropOffDestination, mLocation errandMLocation, User user) {
         this.taskId = taskId;
         this.creatorId = creatorId;
         this.category = category;
@@ -76,6 +79,15 @@ public class TaskModel implements Serializable {
         this.specialInstructions = specialInstructions;
         this.dropOffDestination = dropOffDestination;
         this.errandMLocation = errandMLocation;
+        this.user = user;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getTaskId() {
