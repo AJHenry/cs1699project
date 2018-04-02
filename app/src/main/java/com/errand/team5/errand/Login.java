@@ -59,7 +59,7 @@ public class Login extends AppCompatActivity {
 
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -74,10 +74,9 @@ public class Login extends AppCompatActivity {
         super.onStart();
         // Check for existing Google Sign In account, if the user is already signed in
 // the GoogleSignInAccount will be non-null.
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if(account != null){
-            firebaseAuthWithGoogle(account);
-        }
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
     }
 
     private void signIn() {
@@ -132,7 +131,10 @@ public class Login extends AppCompatActivity {
                 });
     }
 
-    private void updateUI(FirebaseUser fb){
+    private void updateUI(FirebaseUser fb) {
+        if (fb == null) {
+            return;
+        }
         Toast.makeText(this, "Successfully logged in", Toast.LENGTH_LONG).show();
         DatabaseReference newUser = userTable.child(fb.getUid());
         String uid = fb.getUid();

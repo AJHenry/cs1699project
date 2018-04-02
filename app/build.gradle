@@ -5,8 +5,14 @@ android {
         debug {
             keyAlias 'debug'
             keyPassword 'password'
-            storeFile file('C:/Users/imand/Desktop/CS1699/cs1699project/debug.jks')
+            storeFile file('debug.jks')
             storePassword 'password'
+        }
+        key {
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "AndroidDebugKey"
+            keyPassword "android"
         }
     }
     compileSdkVersion 26
@@ -17,6 +23,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.key
     }
     buildTypes {
         release {
@@ -26,6 +33,8 @@ android {
         debug {
             signingConfig signingConfigs.debug
         }
+    }
+    productFlavors {
     }
 }
 //Need for com.github.blackcat27:library:2.0.2-SNAPSHOT (Currency Input Library)
