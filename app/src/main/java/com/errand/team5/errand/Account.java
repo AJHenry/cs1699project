@@ -66,6 +66,10 @@ public class Account extends Fragment {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
+                //getActivity().finish();
+                Intent login = new Intent(getActivity(), Login.class);
+                startActivity(login);
+
                 Toast.makeText(getContext(), "Signed Out", Toast.LENGTH_SHORT).show();
             }
         });
