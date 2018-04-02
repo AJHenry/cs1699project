@@ -44,7 +44,7 @@ public class OthersTasks extends Fragment {
         //Create a new drop off location
         mLocation dropOff = new mLocation(0,0);
 
-        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
+        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null, null);
 
         taskList.add(exampleTask);
         TaskFeedAdapter adapter = new TaskFeedAdapter(taskList, getView().getContext(), null);

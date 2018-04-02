@@ -45,9 +45,11 @@ public class History extends Fragment {
         //Create a new drop off location
         mLocation dropOff = new mLocation(0,0);
 
-        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
+        //User user = new User();
+
+        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null, null);
+        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null, null);
+        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null, null);
 
         taskList.add(exampleTask);
         taskList.add(exampleTask1);

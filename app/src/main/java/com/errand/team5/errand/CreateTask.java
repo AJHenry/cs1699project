@@ -460,6 +460,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 createdErrand.setPaymentCost(fees);
                 createdErrand.setTitle(title);
                 createdErrand.setTimeToCompleteMins(timeToComplete);
+                createdErrand.setUser(new User(user.getUid(), user.getPhotoUrl().toString(), user.getDisplayName(), user.getEmail()));
 
 
                 //Pass it to database
