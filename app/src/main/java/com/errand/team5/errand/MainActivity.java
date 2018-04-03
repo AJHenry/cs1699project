@@ -1,12 +1,16 @@
 package com.errand.team5.errand;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
@@ -67,7 +72,7 @@ public class MainActivity extends AppCompatActivity
     private final int LOCATION_PERMISSION = 99;
 
     //Debugging
-    private final String TAG = "MainActivityClass";
+    private final String TAG = "MainActivity";
 
 
     private FirebaseAuth mAuth;
@@ -78,6 +83,7 @@ public class MainActivity extends AppCompatActivity
     private TextView name;
     private TextView email;
     private ImageView profileImage;
+    private ProgressBar loadingBar;
 
     private ListView feed;
 
@@ -113,8 +119,7 @@ public class MainActivity extends AppCompatActivity
                 //Failure
                 Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
-        }
-        else if (requestCode == SIGN_IN){
+        } else if (requestCode == SIGN_IN) {
             fillUserUI(mAuth.getCurrentUser());
         }
     }
@@ -134,7 +139,11 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createTask();
+                if (checkPermissions()) {
+                    createTask();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Permissions needed in order to create a task", Toast.LENGTH_LONG).show();
+                }
             }
         });
 
@@ -148,7 +157,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //Get the name and text view
+        //Components
         View headerView = navigationView.getHeaderView(0);
         name = (TextView) headerView.findViewById(R.id.name);
         email = (TextView) headerView.findViewById(R.id.email);
@@ -160,19 +169,46 @@ public class MainActivity extends AppCompatActivity
         // ...
         mAuth = FirebaseAuth.getInstance();
 
-        boolean permissions = checkPermissions();
-        if (!permissions) {
-            requestPermissions();
+        //Check for the internet
+        if(!isConnectedToInternet()){
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.main_layout), "Please check your connection", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            updateUI();
+                        }
+                    });
+            snackbar.show();
         }
+
+        checkPermissions();
     }
 
     private void updateUI() {
         //TODO Show a loading spinner until this is all ready
 
-        //Check permissions, account, and location
-        if (!locationReady || !accountReady || !checkPermissions()) {
+        //Check for the internet
+        if(!isConnectedToInternet()){
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.main_layout), "Please check your connection", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            updateUI();
+                        }
+                    });
+            snackbar.show();
             return;
         }
+
+        //Check permissions, account, and location
+        if (!accountReady || !checkPermissions() || !locationReady) {
+            return;
+        }
+
+        //Lets get rid of the loading spinner
+
         // Create a new fragment and specify the fragment to show based on nav item clicked
         Fragment fragment = null;
         Class fragmentClass = null;
@@ -187,7 +223,7 @@ public class MainActivity extends AppCompatActivity
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.main_layout, fragment).commit();
     }
 
 
@@ -197,10 +233,10 @@ public class MainActivity extends AppCompatActivity
         // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
-
     }
 
-    private void fillUserUI(FirebaseUser currentUser){
+    //Fills in the user name and email and picture
+    private void fillUserUI(FirebaseUser currentUser) {
         //Set the email and name in the drawer
         email.setText(currentUser.getEmail());
         name.setText(currentUser.getDisplayName());
@@ -226,14 +262,13 @@ public class MainActivity extends AppCompatActivity
 
     //Check if their profile is null, if so, redirect them to login
     private void checkLogin(FirebaseUser user) {
-        // TODO Fix error where application closes after first login
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivityForResult(login, SIGN_IN);
-
         } else {
             this.user = user;
             accountReady = true;
+            Log.d(TAG, "Acount ready = " +accountReady);
             fillUserUI(user);
         }
     }
@@ -298,7 +333,7 @@ public class MainActivity extends AppCompatActivity
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.flContent, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.main_layout, fragment).commit();
 
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -338,8 +373,15 @@ public class MainActivity extends AppCompatActivity
 
                 } else {
 
-                    //TODO display error stating we need permissions
-                    Toast.makeText(this, "NEED PERMISSIONS TODO", Toast.LENGTH_LONG).show();
+                    Snackbar snackbar = Snackbar
+                            .make(findViewById(R.id.main_layout), "Location permissions needed to use this app", Snackbar.LENGTH_INDEFINITE)
+                            .setAction("RETRY", new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    checkPermissions();
+                                }
+                            });
+                    snackbar.show();
                 }
                 return;
             }
@@ -378,6 +420,7 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
                         //mLocation is ready to be used
                         locationReady = true;
+                        Log.d(TAG, "Location ready = " +locationReady);
                         updateUI();
                     }
                 });
@@ -390,5 +433,11 @@ public class MainActivity extends AppCompatActivity
                 .stop();
     }
 
+    private boolean isConnectedToInternet() {
+        ConnectivityManager cm =
+                (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
 
 }
