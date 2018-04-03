@@ -118,7 +118,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
             //Meters to miles
             int miles = (int) (distance * 0.000621371192);
 
-            viewHolder.distance.setText(distanceText+" away");
+            viewHolder.distance.setText(distanceText);
         }
 
         //Set the price tag
