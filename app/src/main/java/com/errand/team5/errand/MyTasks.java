@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +29,10 @@ import java.util.Queue;
 
 public class MyTasks extends Fragment {
 
+    //Components
     private ListView feed;
+    private ProgressBar spinner;
+
     private final String TAG = "MyTasks Class";
 
     //Firebase auth
@@ -44,6 +48,9 @@ public class MyTasks extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        //Components
+        spinner = (ProgressBar) getActivity().findViewById(R.id.main_loading);
+        feed = (ListView) getActivity().findViewById(R.id.my_task_feed);
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         // ...
@@ -68,6 +75,19 @@ public class MyTasks extends Fragment {
             this.user = user;
             updateUI();
         }
+    }
+
+    @Override
+    public void onResume() {
+        Log.d(TAG, "onResume");
+        spinner.setVisibility(View.VISIBLE);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        Log.d(TAG, "onPause");
+        super.onPause();
     }
 
     private void updateUI(){
@@ -104,26 +124,16 @@ public class MyTasks extends Fragment {
         });
     }
 
+    /**
+     * Shows the data when it is a available
+     * @param errandList
+     */
     private void generateFeed(ArrayList<TaskModel> errandList) {
         Log.d(TAG, "Generated Feed");
-        feed = (ListView) getView().findViewById(R.id.my_task_feed);
 
-        /*
-        ArrayList<TaskModel> taskList = new ArrayList<>();
+        //Get rid of the spinner
+        spinner.setVisibility(View.GONE);
 
-        //Create a new drop off location
-        mLocation dropOff = new mLocation("");
-        dropOff.setLongitude(0);
-        dropOff.setLatitude(0);
-
-        TaskModel exampleTask = new TaskModel("A", "TEST", 0, 0, new mTimestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 30, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask1 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 45, 10.0f, 1.0f, "Test Task", "Test Description", null, dropOff, null);
-        TaskModel exampleTask2 = new TaskModel("A", "TEST", 0, 0, new mTimestamp(Calendar.getInstance().get(Calendar.MILLISECOND)), 60, 10.0f, 1.0f, "Burger King Delivery", "I would like someone to pick me up a medium Whopper meal with cheese. Onion rings as the side and Diet Coke as the drink", null, dropOff, null);
-
-        taskList.add(exampleTask);
-        taskList.add(exampleTask1);
-        taskList.add(exampleTask2);
-        */
         TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), null);
 
         feed.setAdapter(adapter);

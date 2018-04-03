@@ -2,6 +2,7 @@ package com.errand.team5.errand;
 
 /**
  * Created by imand on 4/2/2018.
+ * TODO revise this
  */
 
 
@@ -95,7 +96,7 @@ public final class DistanceFormatter {
         decimalFormat.applyPattern("#.#");
 
         if (distanceInMeters == 0) {
-            return "";
+            return "1 ft away";
         }
 
         switch (units) {
@@ -104,7 +105,8 @@ public final class DistanceFormatter {
             case 1:
                 return formatKilometers(distanceInMeters, realTime);
             default:
-                return "";
+                return formatMiles(distanceInMeters, realTime);
+                //return "";
         }
     }
 
@@ -147,24 +149,24 @@ public final class DistanceFormatter {
 
     private static String formatDistanceInKilometers(int distanceInMeters) {
         String value = decimalFormat.format((float) distanceInMeters / 1000);
-        return String.format(Locale.getDefault(), "%s km", value);
+        return String.format(Locale.getDefault(), "%s km away", value);
     }
 
     private static String formatDistanceLessThanTenFeet(double distanceInFeet, boolean realTime) {
         if (realTime) {
             return "now";
         } else {
-            return String.format(Locale.getDefault(), "%d ft", (int) Math.floor(distanceInFeet));
+            return String.format(Locale.getDefault(), "%d ft away", (int) Math.floor(distanceInFeet));
         }
     }
 
     private static String formatDistanceOverTenFeet(double distanceInFeet) {
         int roundedDistanceInFeet = roundDownToNearestTen(distanceInFeet);
-        return String.format(Locale.getDefault(), "%d ft", roundedDistanceInFeet);
+        return String.format(Locale.getDefault(), "%d ft away", roundedDistanceInFeet);
     }
 
     private static String formatDistanceInMiles(int distanceInMeters) {
-        return String.format(Locale.getDefault(), "%s mi",
+        return String.format(Locale.getDefault(), "%s mi away",
                 decimalFormat.format(distanceInMeters / METERS_IN_ONE_MILE));
     }
 
