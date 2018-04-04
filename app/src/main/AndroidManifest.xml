@@ -38,6 +38,19 @@
         <activity android:name=".Login" />
         <activity android:name=".Task" />
         <!--
+            BraintreeDirect required activity for Express Paypal Checkout integration
+        -->
+        <activity android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
+            android:launchMode="singleTask">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.errand.team5.errand.braintree" />
+            </intent-filter>
+        </activity>
+        
+        <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
              Note that the API key is linked to the encryption key used to sign the APK.
