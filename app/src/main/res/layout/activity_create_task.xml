@@ -26,10 +26,10 @@
                 android:layout_marginTop="16dp"
                 android:text="Drop Off Location"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout1" />
+                app:layout_constraintTop_toBottomOf="@+id/text_input_description" />
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/textInputLayout1"
+                android:id="@+id/text_input_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
@@ -38,14 +38,14 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/title_holder">
+                app:layout_constraintTop_toBottomOf="@+id/text_input_title"
+                app:counterEnabled="true"
+                app:counterMaxLength="500">
 
                 <EditText
                     android:id="@+id/description"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="8dp"
-                    android:layout_marginStart="8dp"
                     android:layout_weight="1"
                     android:ems="10"
                     android:hint="Description*"
@@ -87,21 +87,21 @@
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout1" />
+                    app:layout_constraintTop_toBottomOf="@+id/text_input_description" />
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/textInputLayout5"
+                android:id="@+id/text_input_special_instructions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_weight="1"
-                android:layout_marginStart="32dp"
-                android:layout_marginEnd="32dp"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+                app:counterEnabled="true"
+                app:counterMaxLength="100">
 
                 <EditText
                     android:id="@+id/special_instructions"
@@ -119,16 +119,19 @@
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
-                android:id="@+id/title_holder"
+                android:id="@+id/text_input_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="16dp"
-                app:layout_constraintEnd_toStartOf="@+id/cost"
+                app:layout_constraintEnd_toStartOf="@+id/text_input_cost"
                 app:layout_constraintHorizontal_chainStyle="spread"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:counterEnabled="true"
+                app:counterMaxLength="25">
 
                 <EditText
                     android:id="@+id/title"
@@ -147,7 +150,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/time_amount"
                 app:layout_constraintHorizontal_chainStyle="packed"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
+                app:layout_constraintTop_toBottomOf="@+id/text_input_special_instructions" />
 
             <LinearLayout
                 android:id="@+id/linearLayout3"
@@ -218,18 +221,27 @@
                 android:layout_marginTop="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/time_type"
-                app:layout_constraintTop_toBottomOf="@+id/textInputLayout5" />
+                app:layout_constraintTop_toBottomOf="@+id/text_input_special_instructions" />
 
-            <com.blackcat.currencyedittext.CurrencyEditText
-                android:id="@+id/cost"
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/text_input_cost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="32dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="27dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/title_holder"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintStart_toEndOf="@+id/text_input_title"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <com.blackcat.currencyedittext.CurrencyEditText
+                    android:id="@+id/cost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:hint="Cost*"
+                    tools:layout_editor_absoluteY="12dp" />
+            </android.support.design.widget.TextInputLayout>
 
             <LinearLayout
                 android:id="@+id/linearLayout2"
@@ -266,6 +278,15 @@
                     android:textSize="10sp" />
 
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/location_error_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/holo_red_light"
+                android:textSize="12sp"
+                app:layout_constraintStart_toStartOf="@+id/task_drop_off_button"
+                app:layout_constraintTop_toBottomOf="@+id/task_drop_off_button" />
         </android.support.constraint.ConstraintLayout>
     </ScrollView>
 
