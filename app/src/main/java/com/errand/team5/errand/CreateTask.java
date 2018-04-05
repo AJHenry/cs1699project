@@ -123,6 +123,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeAmountInput.setMinValue(0);
         timeAmountInput.setMaxValue(2);
         timeAmountInput.setDisplayedValues( new String[] { "15", "30", "45" } );
+        
 
         timeTypeInput.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
