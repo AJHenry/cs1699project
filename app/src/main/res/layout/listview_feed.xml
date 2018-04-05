@@ -138,6 +138,7 @@
             android:fontFamily="@font/roboto_light"
             android:text="$"
             android:textColor="@android:color/black"
+            android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/price"
             app:layout_constraintTop_toTopOf="@+id/price" />
     </android.support.constraint.ConstraintLayout>

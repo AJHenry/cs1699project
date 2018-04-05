@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +30,10 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.SphericalUtil;
+
+import org.w3c.dom.Text;
+
+import java.text.NumberFormat;
 
 
 public class CreateTask extends AppCompatActivity implements View.OnClickListener {
@@ -105,13 +110,17 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
 
         TaskData taskData;
-        if ((taskData = (TaskData)extras.getSerializable("taskData")) != null){
+        try {
+            if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
 
-            titleInput.setText(taskData.getTitle());
-            costInput.setValue(taskData.getPrice());
-            descriptionInput.setText(taskData.getDescription());
-            specialInstructionsInput.setText(taskData.getSpecialInstructions());
-            toSend = true;
+                titleInput.setText(taskData.getTitle());
+                costInput.setValue(taskData.getPrice());
+                descriptionInput.setText(taskData.getDescription());
+                specialInstructionsInput.setText(taskData.getSpecialInstructions());
+                toSend = true;
+            }
+        }catch (NullPointerException e){
+            Log.wtf(TAG, "ERROR GETTING taskData info, please contact help");
         }
 
         //Populate the pickers
@@ -360,7 +369,10 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
         double baseprice = costInput.getRawValue()/100.0;
-        String dropOffAddress = dropOffPlace.getAddress().toString();
+        String dropOffAddress = "";
+        if(dropOffPlace != null) {
+            dropOffAddress = dropOffPlace.getAddress().toString();
+        }
         //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
 
@@ -373,29 +385,66 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             timeToComplete = (timeAmountInput.getValue() + 1) * 15;
         }
 
+        //TextInputLayout
+        TextInputLayout titleInputLayout = (TextInputLayout) findViewById(R.id.text_input_title);
+        TextInputLayout descriptionInputLayout = (TextInputLayout) findViewById(R.id.text_input_description);
+        TextInputLayout basePriceInputLayout = (TextInputLayout) findViewById(R.id.text_input_cost);
+        TextView addressErrorLayout = (TextView) findViewById(R.id.location_error_text);
+        titleInputLayout.setErrorEnabled(false);
+        descriptionInputLayout.setErrorEnabled(false);
+        basePriceInputLayout.setErrorEnabled(false);
+        addressErrorLayout.setText(null);
+
 
         //Fee Calculation
         double fees = baseprice * 0.20;
 
         double subtotal = fees + baseprice;
 
+        if(title.length() < 5){
+            titleInputLayout.setErrorEnabled(true);
+            titleInputLayout.setError("Enter a longer title");
+        }
+
+        if(title.length() > 25){
+            titleInputLayout.setErrorEnabled(true);
+            titleInputLayout.setError("Enter a shorter title");
+        }
+
         if(title == null || title.isEmpty()){
             //Display error underneath
+            titleInputLayout.setErrorEnabled(true);
+            titleInputLayout.setError("Valid title required");
             dataSatisfied = false;
         }
+
+        if(description.length() > 500){
+            descriptionInputLayout.setErrorEnabled(true);
+            descriptionInputLayout.setError("Enter a shorter description");
+        }
+
+        if(description.length() < 10){
+            descriptionInputLayout.setErrorEnabled(true);
+            descriptionInputLayout.setError("Enter a longer description");
+        }
+
         if(description == null || description.isEmpty()){
             //Display error underneath
-
+            descriptionInputLayout.setErrorEnabled(true);
+            descriptionInputLayout.setError("Valid description required");
             dataSatisfied = false;
         }
+
+
         if(baseprice <= 0.0){
             //Display error underneath
-
+            basePriceInputLayout.setErrorEnabled(true);
+           basePriceInputLayout.setError("Cost*");
             dataSatisfied = false;
         }
         if(dropOffAddress == null || dropOffAddress.isEmpty()){
             //Display error underneath
-
+            addressErrorLayout.setText("Please select a valid address");
             dataSatisfied = false;
         }
         /*
@@ -426,9 +475,12 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
         TextView specialInstructionsText = (TextView) dialog.findViewById(R.id.summary_special_instructions);
         specialInstructionsText.setText(specialInstructions);
-        subtotalText.setText(""+subtotal);
-        baseCost.setText(""+basePrice);
-        feeCost.setText(""+fees);
+
+        NumberFormat format = NumberFormat.getCurrencyInstance();
+
+        subtotalText.setText(format.format(subtotal));
+        baseCost.setText(format.format(basePrice));
+        feeCost.setText(format.format(fees));
 
         TextView summaryTitle = (TextView) dialog.findViewById(R.id.summary_title);
         summaryTitle.setText(title);

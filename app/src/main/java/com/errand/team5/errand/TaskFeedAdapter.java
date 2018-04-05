@@ -22,6 +22,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -123,8 +124,8 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
 
         //Set the price tag
         Log.d(TAG, task.getBaseCost()+"");
-        DecimalFormat df = new DecimalFormat("0.##");
-        viewHolder.price.setText(df.format(task.getBaseCost()));
+        NumberFormat format = NumberFormat.getCurrencyInstance();
+        viewHolder.price.setText(format.format(task.getBaseCost()));
         //viewHolder.time.setText(dataModel.getTimeToComplete());
 
         // Return the completed view to render on screen
