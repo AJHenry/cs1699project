@@ -31,6 +31,8 @@ public class Task extends AppCompatActivity {
     private TextView taskSpecialInstructions;
     private Button dropOffLocation;
     private ImageView profileImage;
+    private String id;
+    private String creatorId;
 
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -41,7 +43,7 @@ public class Task extends AppCompatActivity {
             setContentView(R.layout.activity_task);
 
             Intent intent = getIntent();
-            String id = intent.getStringExtra("taskId");
+            id = intent.getStringExtra("taskId");
 
             //Show the back button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -60,6 +62,27 @@ public class Task extends AppCompatActivity {
             taskSpecialInstructions = (TextView) findViewById(R.id.task_special_instructions);
             dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
             profileImage = (ImageView) findViewById(R.id.task_profile_image);
+
+            //==============================================================
+            //TODO: below is how I plan to implement requesting a task and some of the setup required in onCreate
+            //use the "id" retrieved from intent to fill in the above fields
+
+            //also use the id to retrieve the creator's userid from the entry in errands
+                //this is (-> errands -> <"id"> -> user -> uid) in the firebase
+                //this will be needed when we are trying to communicate with the creator of the task
+                // to request approval when the request button is pressed.
+
+            creatorId = ""; //store the creator's id in this variable for later use
+
+            //set request button to disabled if the user status indicates they are already on a task
+                //still need to add this attribute to User
+
+
+
+            //==============================================================
+
+
+
 
             //Set the user profile picture
             //String imgurl = currentUser.getPhotoUrl().toString();
@@ -108,5 +131,39 @@ public class Task extends AppCompatActivity {
         } else {
             this.user = user;
         }
+    }
+
+    private void onRequest(View view)
+    {
+        //TODO: implement requesting Task
+
+        //check that the task is still available in the DB using status
+            //must be robust to users taking the task while we are looking at the details
+            //if taken, Toast the user that it is taken and return to Feed
+
+        //If not taken:
+            //notify the creator that they have a pending request
+                //multiple options here:
+                    //1. When users login and enter the app, request permission to use push notifications
+                    //   This uses Google Cloud Messaging through firebase
+                        //documentation: https://developers.google.com/cloud-messaging/android/client
+                    //   In essence, you request permission to use push notifications through GMS and when they
+                    //   you can get a registration token specific to their devices instance of the app and can
+                    //   use that token to send them a notification directly. We could save this token on first
+                    //   login in the user's User object that is loaded into the firebase users table
+
+                    //2. Have a notification page that users can navigate to view a list of their notifications.
+                        //This would require that we have a way of tagging relevant parties in each notification
+                        // and only populate their listview with those notifications tagged for them
+                        // Likely this would be easier in the context of what we already have done
+                        // but requires a lot of work in the DB and querying to make it work properly.
+                            //one approach in DB implementation would be having a notifications table parallel to the users
+                            //   and errands tables that hold all notifications with tags as described above
+                            //alternatively we could hold a notifications table as a child of each user in the firebase as well
+                            //   however, this might cause issues when trying to pull a user from the firebase into a User object
+                            //   because it wouldn't have a corresonding field in the User object
+                            //          although this may be possible to include as another Notification opbject nested inside the User
+                            //          object. But I'm not entirely sure that is possible.
+
     }
 }
