@@ -112,6 +112,9 @@ public class MyTasks extends Fragment {
                     generateFeed(errands);
                 }else{
                     //TODO no data found for the user
+                    // just simply turn off the spinner.
+                    spinner.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "No Tasks Made. Create a task", Toast.LENGTH_LONG).show();
                 }
 
             }
