@@ -5,7 +5,7 @@ android {
         debug {
             keyAlias 'debug'
             keyPassword 'password'
-            storeFile file('C:/Users/Brett/Desktop/Android turn in/Project/cs1699project/app/debug.keystore')
+            storeFile file('debug.jks')
             storePassword 'password'
         }
         key {
@@ -31,7 +31,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         debug {
-            signingConfig signingConfigs.key
+            signingConfig signingConfigs.debug
         }
     }
     productFlavors {
