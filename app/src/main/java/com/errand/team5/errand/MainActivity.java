@@ -101,9 +101,6 @@ public class MainActivity extends AppCompatActivity
      */
     private void createTask() {
         Intent intent = new Intent(this, CreateTask.class);
-        Location loc = lastKnownLocation;
-        intent.putExtra("LAT", loc.getLatitude());
-        intent.putExtra("LONG", loc.getLongitude());
         startActivityForResult(intent, CREATE_TASK_REQUEST);
     }
 
