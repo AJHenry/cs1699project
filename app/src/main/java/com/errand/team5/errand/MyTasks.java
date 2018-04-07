@@ -143,6 +143,30 @@ public class MyTasks extends Fragment {
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Choose Option")
+                        .setPositiveButton("Show Errand Summary", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int otherID) {
+                                // TODO show errand summary
+                                Toast.makeText(getView().getContext(), "It works at this position " + position, Toast.LENGTH_LONG).show();
+
+                            }
+                        })
+                        .setNegativeButton("Delete Errand", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int ids) {
+                                // TODO delete the errand from the firebase
+                                String tID = errandList.get(position).getTaskId();
+                                DatabaseReference fb = FirebaseDatabase.getInstance().getReference();
+                                DatabaseReference table = fb.child("errand-9c52d/errands/" + tID); // reference to table is correct
+                                //Intent intent = getIntent();
+                                //String tID = intent.getStringExtra("taskId");
+                                Log.i("ShowTaskID", "Task ID = " + tID); // task ID is displayed correctly
+                                table.removeValue(); // and it still does not remove?!
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                builder.create();
+                builder.show();
 
                 Toast.makeText(getView().getContext(), "Clicked on " + position, Toast.LENGTH_LONG).show();
             }
