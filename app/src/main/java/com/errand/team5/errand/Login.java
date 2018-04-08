@@ -34,6 +34,7 @@ public class Login extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference db;
     private DatabaseReference userTable;
+    private DatabaseReference testUserTable; //DEBUG used for debugging new db structures
 
 
     @Override
@@ -44,6 +45,7 @@ public class Login extends AppCompatActivity {
         //Firebase
         db = FirebaseDatabase.getInstance().getReference();
         userTable = db.child("users");
+        testUserTable = db.child("testUsers"); //DEBUG
         mAuth = FirebaseAuth.getInstance();
 
         // Set the dimensions of the sign-in button.
@@ -137,13 +139,16 @@ public class Login extends AppCompatActivity {
         }
         Toast.makeText(this, "Successfully logged in", Toast.LENGTH_LONG).show();
         DatabaseReference newUser = userTable.child(fb.getUid());
+        DatabaseReference testNewUser = testUserTable.child(fb.getUid());
         String uid = fb.getUid();
         String photoUrl = fb.getPhotoUrl().toString();
         String displayName = fb.getDisplayName();
         String email = fb.getEmail();
         User user = new User(uid, photoUrl, displayName, email);
 
+
         newUser.setValue(user);
+        testNewUser.setValue(user);
         finish();
     }
 }
