@@ -1,21 +1,31 @@
 package com.errand.team5.errand;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.time.DayOfWeek;
 
 import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
 
@@ -30,20 +40,30 @@ public class Task extends AppCompatActivity {
     private TextView taskTimestamp;
     private TextView taskSpecialInstructions;
     private Button dropOffLocation;
+    private Button requestButton;
     private ImageView profileImage;
     private String id;
-    private String creatorId;
 
+    private int status;
+
+    private DatabaseReference db;
+    private DatabaseReference errandsTable;
+    private DatabaseReference testUserTable;
+    private DatabaseReference thisErrand;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
+    private Context context;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_task);
 
+
             Intent intent = getIntent();
             id = intent.getStringExtra("taskId");
+
+            context = this;
 
             //Show the back button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -53,6 +73,9 @@ public class Task extends AppCompatActivity {
             // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
             // ...
             mAuth = FirebaseAuth.getInstance();
+            db = FirebaseDatabase.getInstance().getReference();
+            errandsTable = db.child("errands");
+            testUserTable = db.child("testUsers");
 
             taskTitle = (TextView) findViewById(R.id.task_title);
             taskCompletionTime = (TextView) findViewById(R.id.task_completion_time);
@@ -62,17 +85,65 @@ public class Task extends AppCompatActivity {
             taskSpecialInstructions = (TextView) findViewById(R.id.task_special_instructions);
             dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
             profileImage = (ImageView) findViewById(R.id.task_profile_image);
+            requestButton = (Button) findViewById(R.id.button_request);
 
             //==============================================================
             //TODO: below is how I plan to implement requesting a task and some of the setup required in onCreate
             //use the "id" retrieved from intent to fill in the above fields
+            thisErrand = errandsTable.child(id);
+
+            //TODO this is mohit's task
+
 
             //also use the id to retrieve the creator's userid from the entry in errands
                 //this is (-> errands -> <"id"> -> user -> uid) in the firebase
                 //this will be needed when we are trying to communicate with the creator of the task
                 // to request approval when the request button is pressed.
 
-            creatorId = ""; //store the creator's id in this variable for later use
+            thisErrand.child("status").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    status = dataSnapshot.getValue(Integer.class);
+                    if(status != 0)
+                    {
+                        Toast.makeText(context, "Sorry, this task is no longer available :(", Toast.LENGTH_LONG).show();
+                        requestButton.setEnabled(false);
+                    }
+                    else
+                    {
+                        requestButton.setEnabled(true);
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            }); //this disables the request button if the errand is set into a non-requestable state while the user is viewing the page. also does the opposite.
+
+            /*
+            thisErrand.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    creatorId = dataSnapshot.child("creatorId").getValue(String.class);
+                    DatabaseReference creatorRef = testUserTable.child("creatorId");
+                    if(creatorRef != null)
+                    {
+
+                    }
+                    else
+                    {
+                        Log.d("DEBUG", "CreatorRef is null for some reason.");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });*/
+
+
 
             //set request button to disabled if the user status indicates they are already on a task
                 //still need to add this attribute to User
@@ -92,6 +163,13 @@ public class Task extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     showProfile();
+                }
+            });
+
+            requestButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    onRequest();
                 }
             });
         }
@@ -133,13 +211,45 @@ public class Task extends AppCompatActivity {
         }
     }
 
-    private void onRequest(View view)
+    private void onRequest()
     {
         //TODO: implement requesting Task
 
         //check that the task is still available in the DB using status
             //must be robust to users taking the task while we are looking at the details
             //if taken, Toast the user that it is taken and return to Feed
+
+
+        //TODO Require paypal login here (then on success do the following)
+        thisErrand.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //get creatorId and current userId then for each of them, in their user table, add the notification to their notification table
+                String creatorId = dataSnapshot.child("creatorId").getValue(String.class);
+                String userId = user.getUid();
+
+                //load the notfications into the users notifications table
+                DatabaseReference creatorEntry = testUserTable.child(creatorId);
+                DatabaseReference userEntry = testUserTable.child(userId);
+
+                DatabaseReference creatorNotificationsTable = creatorEntry.child("notifications");
+                DatabaseReference userNotificationTable = userEntry.child("notifications");
+
+                DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
+                DatabaseReference userNewNotificationRef = userNotificationTable.push();
+
+                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", Notification.NEEDS_APPROVAL, Notification.OPEN);
+                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", Notification.PENDING_APPROVAL, Notification.OPEN);
+
+                creatorNewNotificationRef.setValue(newNotficationCreator);
+                userNewNotificationRef.setValue(newNotificationUser);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         //If not taken:
             //notify the creator that they have a pending request
