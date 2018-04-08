@@ -3,6 +3,7 @@ package com.errand.team5.errand;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,11 @@ import android.location.Location;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryDataEventListener;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -37,15 +43,17 @@ public class Feed extends Fragment {
     private ListView feed;
     private ProgressBar spinner;
 
-
-    private ArrayList<TaskModel> taskList;
+    //Global Variables
     private Location lastKnownLocation;
+    private ArrayList<TaskModel> taskList;
+
+    //Firebase stuff
     private FirebaseAuth mAuth;
     private FirebaseUser user;
-
-    private final String TAG = "FeedClass";
-
     private DatabaseReference myRef;
+
+    //Debug
+    private final String TAG = "FeedClass";
 
 
     public Feed() {
@@ -73,12 +81,15 @@ public class Feed extends Fragment {
         feed = (ListView) getActivity().findViewById(R.id.task_feed);
         spinner = (ProgressBar) getActivity().findViewById(R.id.main_loading);
 
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in (non-null)
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
     }
 
-    //Check if their profile is null, if so, redirect them to login
+    /**
+     * Check if their profile is null, if so, redirect them to login
+     * @param user Firebase User currently logged in
+     */
     private void checkLogin(FirebaseUser user) {
         if (user == null) {
             Intent login = new Intent(getContext(), Login.class);
@@ -91,7 +102,7 @@ public class Feed extends Fragment {
     @Override
     public void onResume() {
         Log.d(TAG, "onResume");
-        spinner.setVisibility(View.VISIBLE);
+        //spinner.setVisibility(View.VISIBLE);
         startLocationService();
         super.onResume();
     }
@@ -129,20 +140,44 @@ public class Feed extends Fragment {
                     public void onLocationUpdated(Location location) {
                         Log.d(TAG, "Updated location");
                         lastKnownLocation = location;
-                        Log.d(TAG, "Lon: "+lastKnownLocation.getLongitude()+" Lat: "+lastKnownLocation.getLatitude());
+                        Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
                         updateUI(location);
                     }
                 });
     }
 
-    private void stopLocation(){
+    /**
+     * Stops location service from running in background
+     */
+    private void stopLocation() {
         SmartLocation.with(getActivity())
                 .location()
                 .stop();
     }
 
+    /**
+     * This generates the feed for the home screen
+     * Gets called from updateUI()
+     * @param errandList The list of errands to display
+     * @param location location of the current user, not sure why this is needed however
+     */
     private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
         Log.d(TAG, "Generated feed for home screen");
+
+        //TODO display a text with no tasks available in your area
+        if (errandList.isEmpty()) {
+            //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
+            Snackbar snackbar = Snackbar
+                    .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+                    /*
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                        }
+                    });
+                    */
+            snackbar.show();
+        }
 
         //Get rid of the spinner
         spinner.setVisibility(View.GONE);
@@ -160,38 +195,105 @@ public class Feed extends Fragment {
         });
     }
 
-    private void updateUI(final Location location){
+    //Gets called from startLocation()
+
+    /**
+     * Takes the user's location and uses Geofire to query the database and then passes the TaskModel Objects to
+     * generateFeed in order to display them to the user
+     * TODO Add a content provider to store the data in
+     *
+     * @param userLocation Location of the user to query errands on
+     */
+    private void updateUI(final Location userLocation) {
         //TODO decide when to update
+
+        //Global arraylist of errands
+        final ArrayList<TaskModel> errands = new ArrayList<>();
 
         // Write a message to the database
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         //Query database for all tasks with creator id of this user
-        DatabaseReference myTasksRef = database.getReference("errands");
+        final DatabaseReference myTasksRef = database.getReference("errands");
 
-        myTasksRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        //GeoFire instance
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("geofire");
+        GeoFire geoFire = new GeoFire(ref);
+
+        // creates a new query around [37.7832, -122.4056] with a radius of 0.6 kilometers
+        //First we need to establish where the user is with lat and lng
+        double lat = userLocation.getLatitude();
+        double lng = userLocation.getLongitude();
+
+        //Now we need to set a radius of how far we need to look, in km
+        double radius = 20;
+
+        //Now we build a query with that
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lat, lng), radius);
+
+        //TODO Come up with a better plan than this
+        //This flag will be set with onGeoQueryReady
+        //But getting the last key may not be done since firebase is async
+        //So instead we have to set the flag in onGeoQueryReady, and then call it from the last onKeyEntered
+        final boolean[] isReady = {false};
+
+        //Now we need listeners for each type of event
+        //We're really only concerned with
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onKeyEntered(String key, GeoLocation location) {
+                Log.d(TAG, "Found one " + key);
+                //Query the firebase based on the key
+                Query queryRef = myTasksRef.orderByChild("taskId").equalTo(key);
 
-                if (dataSnapshot.exists()) {
-                    ArrayList<TaskModel> errands = new ArrayList<>();
-                    // dataSnapshot is the "issue" node with all children with id 0
-                    for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
-                        //Add the errand to the list
-                        TaskModel errand = errandMap.getValue(TaskModel.class);
-                        errands.add(errand);
+                queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Log.d(TAG, "Got it from the database");
+                        if (dataSnapshot.exists()) {
+                            Log.d(TAG, "Even added it!");
+                            // dataSnapshot is the "issue" node with all children with id 0
+                            for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
+                                //Add the errand to the list
+                                TaskModel errand = errandMap.getValue(TaskModel.class);
+                                errands.add(errand);
+                            }
+
+                            if (isReady[0]) {
+                                //Generate the keys when everything is done
+                                generateFeed(errands, userLocation);
+                            }
+                        }
                     }
-                    generateFeed(errands, location);
-                }else{
-                    //TODO no data found for the user
-                }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        //Should not happen
+                        Toast.makeText(getContext(), "Error reading Errands from Firebase", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //Should not happen
-                Toast.makeText(getContext(), "Error reading Errands from Firebase", Toast.LENGTH_LONG).show();
+            public void onKeyExited(String key) {
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+            }
+
+            //Gets called when all the keys are found
+            @Override
+            public void onGeoQueryReady() {
+                isReady[0] = true;
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+                Log.e(TAG, "Error a=with Geofire ref error: " + error);
             }
         });
+
+
     }
 }
