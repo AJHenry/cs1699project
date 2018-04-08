@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -27,6 +29,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.SphericalUtil;
@@ -36,15 +39,7 @@ import org.w3c.dom.Text;
 import java.text.NumberFormat;
 
 
-public class CreateTask extends AppCompatActivity implements View.OnClickListener {
-
-    private Button[] amount = new Button[3];
-    private Button amount_unfocus;
-    private int[] amount_id = {R.id.c1, R.id.c2, R.id.c3};
-
-    private Button[] type = new Button[2];
-    private Button type_unfocus;
-    private int[] type_id = {R.id.hours, R.id.mins};
+public class CreateTask extends AppCompatActivity {
 
     //Places from PlacePicker
     private Place dropOffPlace;
@@ -76,28 +71,24 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     private FirebaseUser user;
 
 
-
-    //Global Values
-    private int currentTimeSelected = 0;
-
-    //TODO Check for user login
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_task);
-        getSupportActionBar().setTitle("Create Task");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Needs to be wrapped in a try-catch for a nullpointer
+        try {
+            getSupportActionBar().setTitle("Create Task");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }catch(NullPointerException e){
+            Log.e(TAG, "Error setting title and back button for actionBar");
+        }
 
         //Get the references to firebase
         mAuth = FirebaseAuth.getInstance();
 
         //Get location passed from MainActivity
         Bundle extras = getIntent().getExtras();
-
-        //Get the data if it is not nll
-
 
         //Components
         dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
@@ -109,6 +100,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
 
+        //Used for getting errand info from Team 4
         TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
@@ -150,7 +142,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             }
         });
 
-
+        //Set on click listeners for the pickers
         errandLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,95 +156,39 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 dropOffPicker();
             }
         });
-
-        for (int i = 0; i < amount.length; i++) {
-            amount[i] = (Button) findViewById(amount_id[i]);
-            amount[i].setBackgroundColor(Color.rgb(207, 207, 207));
-            amount[i].setOnClickListener(this);
-        }
-
-        for (int i = 0; i < type.length; i++) {
-            type[i] = (Button) findViewById(type_id[i]);
-            type[i].setBackgroundColor(Color.rgb(207, 207, 207));
-            type[i].setOnClickListener(this);
-        }
-
-        type_unfocus = type[0];
-        amount_unfocus = amount[0];
-
-        setTypeFocus(amount_unfocus, amount[0]);
-        setTypeFocus(type_unfocus, type[0]);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in (non-null)
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
     }
 
     //Check if their profile is null, if so, redirect them to login
     private void checkLogin(FirebaseUser user) {
-        // TODO Fix error where application closes after first login
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
-            //finish();
         } else {
             this.user = user;
         }
     }
 
+    //TODO Anyone know what this is for?
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
     }
 
-    @Override
-    public void onClick(View v) {
-        //setTypeForcus(type_unfocus, (Button) findViewById(v.getId()));
-        //Or use switch
-        switch (v.getId()) {
-            case R.id.c1:
-                setAmountFocus(amount_unfocus, amount[0]);
-                break;
 
-            case R.id.c2:
-                setAmountFocus(amount_unfocus, amount[1]);
-                break;
-
-            case R.id.c3:
-                setAmountFocus(amount_unfocus, amount[2]);
-                break;
-
-            case R.id.hours:
-                setTypeFocus(type_unfocus, type[0]);
-                break;
-
-            case R.id.mins:
-                setTypeFocus(type_unfocus, type[1]);
-                break;
-        }
-    }
-
-    private void setTypeFocus(Button btn_unfocus, Button btn_focus) {
-        btn_unfocus.setTextColor(Color.rgb(49, 50, 51));
-        btn_unfocus.setBackgroundColor(Color.rgb(207, 207, 207));
-        btn_focus.setTextColor(Color.rgb(255, 255, 255));
-        btn_focus.setBackgroundColor(Color.rgb(3, 106, 150));
-        this.type_unfocus = btn_focus;
-    }
-
-    private void setAmountFocus(Button btn_unfocus, Button btn_focus) {
-        btn_unfocus.setTextColor(Color.rgb(49, 50, 51));
-        btn_unfocus.setBackgroundColor(Color.rgb(207, 207, 207));
-        btn_focus.setTextColor(Color.rgb(255, 255, 255));
-        btn_focus.setBackgroundColor(Color.rgb(3, 106, 150));
-        this.amount_unfocus = btn_focus;
-    }
-
+    /**
+     * Used for the checkmark in the top right
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -266,9 +202,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.create_task:
-                //TODO Check to make sure they filled out the required fields
                 createTask();
-                //setRequest();
                 return true;
             case android.R.id.home:
                 this.finish();
@@ -284,22 +218,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         finish();
     }
 
+    /**
+     * Used for accessing the Google Place Picker API for the drop off location
+     */
     private void dropOffPicker() {
-
         try {
+            //Create a new Place Picker intent
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            //If location is not null, put a pin near there
-            //WARNING, Google Place picker has a bug where it does not use setLatLngBounds correctly
-            if (loc != null) {
-                Log.d(TAG, "mLocation available");
-                //Create new latlon
-                LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
-                //Radius in meters
-                double radius = 50;
-                //Create a new bound and pass it
-                LatLngBounds mLatLngBounds = toBounds(mLatLng, radius);
-                //builder.setLatLngBounds(mLatLngBounds);
-            }
+
             //Start the activity
             startActivityForResult(builder.build(this), DROP_OFF_PLACE_PICKER);
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -308,21 +234,16 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    /**
+     * Used to pick the errand location
+     * CURRENTLY UNUSED
+     */
     private void errandPicker() {
-
         try {
+            //Create a new place picker intent
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            //If location is not null, put a pin near there
-            if (loc != null) {
-                //Create new latlon
-                LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
-                //Radius in meters
-                double radius = 50;
-                //Create a new bound and pass it
-                LatLngBounds mLatLngBounds = toBounds(mLatLng, radius);
-                //builder.setLatLngBounds(mLatLngBounds);
-            }
-            //Start the activity
+
+            //Start the activity for place picker
             startActivityForResult(builder.build(this), ERRAND_PLACE_PICKER);
         } catch (GooglePlayServicesNotAvailableException e) {
         } catch (GooglePlayServicesRepairableException e) {
@@ -330,7 +251,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    /**
+     * Method callback for Place Picker
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Drop off location place picker
         if (requestCode == DROP_OFF_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 dropOffPlace = PlacePicker.getPlace(data, this);
@@ -352,30 +280,26 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         }
     }
 
-    public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
-        double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
-        LatLng southwestCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0);
-        LatLng northeastCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
-        return new LatLngBounds(southwestCorner, northeastCorner);
-    }
 
-
+    /**
+     * Used for getting the values from the input fields and verifying they are valid
+     *
+     * Called when a person hits the checkmark in the toolbar
+     */
     public void createTask(){
-        //TODO Verify fields aren't blank
         boolean dataSatisfied = true;
 
+        //Get all the info from the inputs
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        double baseprice = costInput.getRawValue()/100.0;
+        double basePrice = costInput.getRawValue()/100.0;
         String dropOffAddress = "";
         if(dropOffPlace != null) {
             dropOffAddress = dropOffPlace.getAddress().toString();
         }
-        //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
 
+        //Spinner values
         int timeToComplete = 0;
         if (timeTypeInput.getValue() == 1) {
             // HOUR
@@ -385,7 +309,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             timeToComplete = (timeAmountInput.getValue() + 1) * 15;
         }
 
-        //TextInputLayout
+        //TextInputLayout fields, used for displaying error messages
         TextInputLayout titleInputLayout = (TextInputLayout) findViewById(R.id.text_input_title);
         TextInputLayout descriptionInputLayout = (TextInputLayout) findViewById(R.id.text_input_description);
         TextInputLayout basePriceInputLayout = (TextInputLayout) findViewById(R.id.text_input_cost);
@@ -396,11 +320,11 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         addressErrorLayout.setText(null);
 
 
-        //Fee Calculation
-        double fees = baseprice * 0.20;
+        //TODO Fee Calculation
+        double fees = basePrice * 0.20;
+        double subtotal = fees + basePrice;
 
-        double subtotal = fees + baseprice;
-
+        //Error checking
         if(title.length() < 5){
             titleInputLayout.setErrorEnabled(true);
             titleInputLayout.setError("Enter a longer title");
@@ -436,7 +360,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         }
 
 
-        if(baseprice <= 0.0){
+        if(basePrice <= 0.0){
             //Display error underneath
             basePriceInputLayout.setErrorEnabled(true);
            basePriceInputLayout.setError("Cost*");
@@ -447,21 +371,26 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             addressErrorLayout.setText("Please select a valid address");
             dataSatisfied = false;
         }
-        /*
-        if(errandAddress == null || errandAddress.isEmpty()){
-            //Display error underneath
-
-            dataSatisfied = false;
-        }
-        */
 
         //Data is valid
         if(dataSatisfied) {
-            showSummary(title, description, baseprice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
+            showSummary(title, description, basePrice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
         }
     }
 
 
+    /**
+     * Used for showing a summary of the person's errand
+     * TODO display user errand time
+     * @param title
+     * @param description
+     * @param basePrice
+     * @param fees
+     * @param subtotal
+     * @param dropOffPlace
+     * @param specialInstructions
+     * @param timeToComplete
+     */
     public void showSummary(final String title, final String description, final double basePrice, final double fees, double subtotal, final Place dropOffPlace, final String specialInstructions, final int timeToComplete){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -517,6 +446,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
 
                 //Pass it to database
+                //TODO PayPal login
                 if(createTaskEntry(createdErrand)){
                     //Display success to user
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
@@ -528,6 +458,8 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                         finish();
                     }
                     else {
+                        //Used for passing data along to the next app
+                        // Only called when we receive data from another app
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
                         Bundle extras = new Bundle();
                         extras.putInt("whichTrig",4);
@@ -558,28 +490,52 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     }
 
+    /**
+     * Method responsible for writing to firebase
+     * @param newErrand The errand object to insert
+     * @return True if successful, false otherwise
+     */
     public boolean createTaskEntry(TaskModel newErrand){
         Log.d(TAG, "Created entry");
+
+        //Status of the operation
+        final boolean result = true;
 
         //Save to the reference for all tasks
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("errands");
-        String id = ref.push().getKey();
 
-
+        //Create a new task ID for reference
+        String taskId = ref.push().getKey();
 
         //Set the rest of the bookkeeping data
-        newErrand.setTaskId(id);
+        newErrand.setTaskId(taskId);
         newErrand.setCreatorId(user.getUid());
         newErrand.setPublishTime(new mTimestamp());
 
-        ref.child(id).setValue(newErrand);
+        //Add to firebase
+        ref.child(taskId).setValue(newErrand);
 
-        //Save to the reference for users tasks
-        //DatabaseReference createdTasks = database.getReference("created_tasks");
-        //createdTasks.child(user.getUid()).push().setValue(newErrand.getTaskId());
+        //Now we need to save to Geofire so we are able to query based on location
+        DatabaseReference geofireRef = FirebaseDatabase.getInstance().getReference("geofire");
+        GeoFire geoFire = new GeoFire(geofireRef);
+
+        //Set the key as the taskId, and the location as the drop off address
+        double lat = newErrand.getDropOffDestination().getLatitude();
+        double lng = newErrand.getDropOffDestination().getLongitude();
+
+        geoFire.setLocation(taskId, new GeoLocation(lat, lng), new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                //See if there's an error
+                if (error != null) {
+                    //System.err.println("There was an error saving the location to GeoFire: " + error);
+                    Log.e(TAG, "Error writing to geofire database: "+error);
+                }
+            }
+        });
 
         //Tell them it was successful
-        return true;
+        return result;
     }
 }
