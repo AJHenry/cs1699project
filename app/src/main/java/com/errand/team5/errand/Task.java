@@ -104,12 +104,12 @@ public class Task extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     status = dataSnapshot.getValue(Integer.class);
-                    if(status != 0)
+                    if(status != 0 && requestButton.isEnabled())
                     {
                         Toast.makeText(context, "Sorry, this task is no longer available :(", Toast.LENGTH_LONG).show();
                         requestButton.setEnabled(false);
                     }
-                    else
+                    else if(status == 0 && requestButton.isEnabled() == false)
                     {
                         requestButton.setEnabled(true);
                     }
@@ -238,11 +238,18 @@ public class Task extends AppCompatActivity {
                 DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
                 DatabaseReference userNewNotificationRef = userNotificationTable.push();
 
-                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", Notification.NEEDS_APPROVAL, Notification.OPEN);
-                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", Notification.PENDING_APPROVAL, Notification.OPEN);
+                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, Notification.NEEDS_APPROVAL, Notification.OPEN);
+                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, Notification.PENDING_APPROVAL, Notification.OPEN);
 
                 creatorNewNotificationRef.setValue(newNotficationCreator);
                 userNewNotificationRef.setValue(newNotificationUser);
+
+                thisErrand.child("status").setValue(1);
+                requestButton.setEnabled(false);
+                Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(context, MainActivity.class);
+                //put any extras if needed
+                startActivity(intent);
             }
 
             @Override
