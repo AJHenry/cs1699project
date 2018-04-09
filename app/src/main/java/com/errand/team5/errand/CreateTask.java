@@ -19,6 +19,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
+import com.braintreepayments.api.BraintreeFragment;
+import com.braintreepayments.api.exceptions.InvalidArgumentException;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
@@ -70,6 +72,11 @@ public class CreateTask extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
+    //Braintree/Paypal
+    private BraintreeFragment braintreeInstance;
+    // this is an unsecure temp tokenization key for Braintree, will replace later
+    private String btAuth = "sandbox_64h4y8bv_nyqs77zshf4f6wsc";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,6 +93,14 @@ public class CreateTask extends AppCompatActivity {
 
         //Get the references to firebase
         mAuth = FirebaseAuth.getInstance();
+
+        //Get references to Braintree
+        try {
+            braintreeInstance = BraintreeFragment.newInstance(this, btAuth);
+        }
+        catch(InvalidArgumentException e){
+            Log.wtf(TAG, "ERROR connecting to Braintree, please contact help");
+        }
 
         //Get location passed from MainActivity
         Bundle extras = getIntent().getExtras();

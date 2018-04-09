@@ -69,6 +69,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.2'
     //https://github.com/bumptech/glide
     implementation 'com.braintreepayments.api:braintree:2.+'
+    implementation 'com.braintreepayments.api:drop-in:3.+'
     implementation 'com.firebase:geofire-android:2.3.1'
 }
 
