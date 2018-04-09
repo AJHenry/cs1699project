@@ -179,7 +179,8 @@ public class Feed extends Fragment {
                     for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
                         //Add the errand to the list
                         TaskModel errand = errandMap.getValue(TaskModel.class);
-                        errands.add(errand);
+                        if (errand.status == 0)
+                            errands.add(errand);
                     }
                     generateFeed(errands, location);
                 }else{

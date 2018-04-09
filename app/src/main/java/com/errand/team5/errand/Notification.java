@@ -6,6 +6,7 @@ public class Notification implements Serializable {
 
     String nId;
     String message;
+    String taskID;
     int type;
         //NEED_APPROVAL = 0 = needs approval
         public static final int NEEDS_APPROVAL = 0;
@@ -25,10 +26,11 @@ public class Notification implements Serializable {
 
     }
 
-    public Notification(String nId, String message, int type, int status)
+    public Notification(String nId, String message, String taskID, int type, int status)
     {
         this.nId = nId;
         this.message = message;
+        this.taskID = taskID;
         this.type = type;
         this.status = status;
     }
@@ -63,5 +65,13 @@ public class Notification implements Serializable {
 
     public void setnId(String nId) {
         this.nId = nId;
+    }
+
+    public String getTaskID() {
+        return taskID;
+    }
+
+    public void setTaskID(String taskID) {
+        this.taskID = taskID;
     }
 }
