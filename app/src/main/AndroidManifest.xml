@@ -49,6 +49,16 @@
                 <data android:scheme="com.errand.team5.errand.braintree" />
             </intent-filter>
         </activity>
+
+        <!-- Required to use PayPal -->
+        <activity android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.LoginActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.PayPalTouchActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+        <service android:name="com.paypal.android.sdk.payments.PayPalService"
+            android:exported="false" />
         
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
