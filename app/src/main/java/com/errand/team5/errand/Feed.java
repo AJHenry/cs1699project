@@ -241,6 +241,7 @@ public class Feed extends Fragment {
         //We're really only concerned with
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
+<<<<<<< HEAD
             public void onKeyEntered(String key, GeoLocation location) {
                 Log.d(TAG, "Found one " + key);
                 //Query the firebase based on the key
@@ -264,6 +265,18 @@ public class Feed extends Fragment {
                                 generateFeed(errands, userLocation);
                             }
                         }
+=======
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if (dataSnapshot.exists()) {
+                    ArrayList<TaskModel> errands = new ArrayList<>();
+                    // dataSnapshot is the "issue" node with all children with id 0
+                    for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
+                        //Add the errand to the list
+                        TaskModel errand = errandMap.getValue(TaskModel.class);
+                        if (errand.status == 0)
+                            errands.add(errand);
+>>>>>>> brett
                     }
 
                     @Override
