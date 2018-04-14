@@ -1,5 +1,7 @@
 package com.errand.team5.errand;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -51,8 +53,9 @@ public class MyTasks extends Fragment {
         //Components
         spinner = (ProgressBar) getActivity().findViewById(R.id.main_loading);
         feed = (ListView) getActivity().findViewById(R.id.my_task_feed);
-
-        //Firebase Auth
+        // Configure sign-in to request the user's ID, email address, and basic
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // ...
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -111,9 +114,6 @@ public class MyTasks extends Fragment {
                     generateFeed(errands);
                 }else{
                     //TODO no data found for the user
-                    // just simply turn off the spinner.
-                    spinner.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "No Tasks Made. Create a task", Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -130,19 +130,51 @@ public class MyTasks extends Fragment {
      * Shows the data when it is a available
      * @param errandList
      */
-    private void generateFeed(ArrayList<TaskModel> errandList) {
+    private void generateFeed(final ArrayList<TaskModel> errandList) {
         Log.d(TAG, "Generated Feed");
 
         //Get rid of the spinner
         spinner.setVisibility(View.GONE);
 
-        TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), null);
+        final TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), null);
 
         feed.setAdapter(adapter);
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                // display a dialog
+                // delete a task, when we click on the task, give an option to delete
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setMessage("Choose Option")
+                        .setPositiveButton("Edit Task", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int otherID) {
+                                // TODO show Task.java page on click, giving user option to edit the page
+                                // Creates a new Task intent
+                                Intent task = new Intent(getActivity(), Task.class);
+                                // We can retrieve the task ID at any postion using this code
+                                task.putExtra("taskId", errandList.get(position).getTaskId());
+                                // starts the task activity
+                                startActivity(task);
 
+                                Toast.makeText(getView().getContext(), "It works at this position " + position, Toast.LENGTH_LONG).show();
+
+                            }
+                        })
+                        .setNegativeButton("Delete Errand", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int ids) {
+                                // TODO delete the errand from the firebase
+                                String tID = errandList.get(position).getTaskId();
+                                FirebaseDatabase fb = FirebaseDatabase.getInstance();
+                                DatabaseReference table = fb.getReference("errands").child(tID); // reference to table is correct
+                                //Intent intent = getIntent();
+                                //String tID = intent.getStringExtra("taskId");
+                                Log.i("ShowTaskID", "Task ID = " + tID); // task ID is displayed correctly
+                                table.removeValue(); // and it still does not remove?!
+                            }
+                        });
+                // Create the AlertDialog object and return it
+                builder.create();
+                builder.show();
                 Toast.makeText(getView().getContext(), "Clicked on " + position, Toast.LENGTH_LONG).show();
             }
         });
