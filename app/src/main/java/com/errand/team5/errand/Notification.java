@@ -7,8 +7,8 @@ public class Notification implements Serializable {
     String nId;
     String message;
     String taskID;
-    String requesterId;
-    String creatorId;
+    User requester;
+    User creator;
     int type;
         //NEED_APPROVAL = 0 = needs approval
         public static final int NEEDS_APPROVAL = 0;
@@ -28,13 +28,13 @@ public class Notification implements Serializable {
 
     }
 
-    public Notification(String nId, String message, String taskID, String requesterId, String creatorId, int type, int status)
+    public Notification(String nId, String message, String taskID, User requester, User creator, int type, int status)
     {
         this.nId = nId;
         this.message = message;
         this.taskID = taskID;
-        this.requesterId = requesterId;
-        this.creatorId = creatorId;
+        this.requester = requester;
+        this.creator = creator;
         this.type = type;
         this.status = status;
     }
@@ -79,19 +79,17 @@ public class Notification implements Serializable {
         this.taskID = taskID;
     }
 
-    public String getRequesterId() {
-        return requesterId;
+    public User getRequester() {
+        return requester;
     }
 
-    public void setRequesterId(String requesterId) {
-        this.requesterId = requesterId;
+    public void setRequester(User requester) {
+        this.requester = requester;
     }
 
-    public String getCreatorId() {
-        return creatorId;
+    public User getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
+    public void setCreator(User creator) { this.creator = creator; }
 }
