@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    
+
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -37,15 +37,16 @@
         <activity android:name=".CreateTask" />
         <activity android:name=".Login" />
         <activity android:name=".Task" />
-        <!--
-            BraintreeDirect required activity for Express Paypal Checkout integration
-        -->
-        <activity android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
+        <!--             BraintreeDirect required activity for Express Paypal Checkout integration -->
+        <activity
+            android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
             android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
+
                 <data android:scheme="com.errand.team5.errand.braintree" />
             </intent-filter>
         </activity>
@@ -55,11 +56,14 @@
         <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity" />
         <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
         <activity android:name="com.paypal.android.sdk.payments.LoginActivity" />
-        <activity android:name="com.paypal.android.sdk.payments.PayPalTouchActivity"
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalTouchActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <service android:name="com.paypal.android.sdk.payments.PayPalService"
+
+        <service
+            android:name="com.paypal.android.sdk.payments.PayPalService"
             android:exported="false" />
-        
+
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -80,9 +84,15 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.errand.team5.errand.CreateReceiver"/>
+                <action android:name="com.errand.team5.errand.CreateReceiver" />
             </intent-filter>
         </receiver>
+
+        <provider
+            android:name=".ApiContentProvider"
+            android:authorities="keys"
+            android:enabled="true"
+            android:exported="true"></provider>
     </application>
 
 </manifest>
