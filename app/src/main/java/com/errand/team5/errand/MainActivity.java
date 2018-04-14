@@ -1,7 +1,9 @@
 package com.errand.team5.errand;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -65,11 +67,13 @@ public class MainActivity extends AppCompatActivity
     //The request code for creating a task
     static final int CREATE_TASK_REQUEST = 1;
 
-    //The result code for loggin in
+    //The result code for logging in
     private final int SIGN_IN = 10101;
 
     //The request code for location permissions
     private final int LOCATION_PERMISSION = 99;
+
+
 
     //Debugging
     private final String TAG = "MainActivity";
@@ -232,6 +236,12 @@ public class MainActivity extends AppCompatActivity
         checkLogin(currentUser);
     }
 
+    @Override
+    public void onStop(){
+
+        super.onStop();
+    }
+
     //Fills in the user name and email and picture
     private void fillUserUI(FirebaseUser currentUser) {
         //Set the email and name in the drawer
@@ -265,7 +275,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             this.user = user;
             accountReady = true;
-            Log.d(TAG, "Acount ready = " +accountReady);
+            Log.d(TAG, "Account ready = " +accountReady);
             fillUserUI(user);
         }
     }
@@ -371,7 +381,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
 
                     Snackbar snackbar = Snackbar
-                            .make(findViewById(R.id.main_layout), "Location permissions needed to use this app", Snackbar.LENGTH_INDEFINITE)
+                            .make(findViewById(R.id.main_layout), "Search permissions needed to use this app", Snackbar.LENGTH_INDEFINITE)
                             .setAction("RETRY", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -382,9 +392,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 
@@ -417,7 +424,7 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
                         //mLocation is ready to be used
                         locationReady = true;
-                        Log.d(TAG, "Location ready = " +locationReady);
+                        Log.d(TAG, "Search ready = " +locationReady);
                         updateUI();
                     }
                 });
