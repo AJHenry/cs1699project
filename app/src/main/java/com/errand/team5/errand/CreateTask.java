@@ -480,13 +480,11 @@ public class CreateTask extends AppCompatActivity {
                     //Need to set the result to ok
                     if (!toSend){
                         //Paypal drop-in payment UI (testing)
-                        braintreeDropIn();
+                        //braintreeDropIn();
 
-                        /*
                         Intent returnIntent = new Intent();
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
-                        */
                     }
                     else {
                         //Used for passing data along to the next app
