@@ -182,6 +182,7 @@ public class UpdateConfirm extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 setResult(RESULT_CANCELED, intent);
+                dialog.dismiss();
                 finish();
             }
         });
@@ -281,7 +282,7 @@ public class UpdateConfirm extends AppCompatActivity {
         if(title.length() == 0){
             title = origTask.getTitle();
         }
-        double basePrice = taskData.getPrice();
+        long basePrice = taskData.getPrice();
         if(basePrice < 0){
             basePrice = origTask.getBaseCost();
         }
