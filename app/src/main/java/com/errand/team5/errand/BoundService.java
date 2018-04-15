@@ -15,7 +15,6 @@ import io.nlopez.smartlocation.location.config.LocationParams;
 
 public class BoundService extends Service {
     private IBinder mBinder = new MyBinder();
-    private Chronometer mChronometer;
     private String TAG = "BoundService";
     private Location lastKnownLocation = null;
 
@@ -68,7 +67,6 @@ public class BoundService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.v(TAG, "in onDestroy");
-        mChronometer.stop();
     }
 
 
