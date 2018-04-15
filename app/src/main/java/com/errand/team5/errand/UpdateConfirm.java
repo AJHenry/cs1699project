@@ -301,8 +301,10 @@ public class UpdateConfirm extends AppCompatActivity {
             timeToComplete = origTask.getTimeToCompleteMins();
         }
 
-        //lat = origTask.getDropOffDestination().getLatitude();
-        //lng = origTask.getDropOffDestination().getLongitude();
+        if(taskData.getDropOffLocation() != null) {
+            lat = origTask.getDropOffDestination().getLatitude();
+            lng = origTask.getDropOffDestination().getLongitude();
+        }
 
         fees = basePrice * 0.20;
         subtotal = fees + basePrice;

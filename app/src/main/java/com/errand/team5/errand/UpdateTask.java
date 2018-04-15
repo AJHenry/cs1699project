@@ -34,7 +34,10 @@ public class UpdateTask extends AppCompatActivity {
     private String DEBUG = "DEBUG: UpdateTask: ";
 
     //Request code
-    static final int CONFIRM_UPDATE = 1;
+    private static final int CONFIRM_UPDATE = 1;
+    private static final int CREATE_NEW = 2;
+    private static final int EDIT = 3;
+
 
     //Save task info
     private TaskData updatedTaskInfo;
@@ -44,6 +47,7 @@ public class UpdateTask extends AppCompatActivity {
 
     //delete or no
     private boolean delete = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -74,7 +78,37 @@ public class UpdateTask extends AppCompatActivity {
                 Toast.makeText(this, "Please make your changes and submit", Toast.LENGTH_LONG).show();
                 Intent createIntent = new Intent(this, CreateTask.class);
                 createIntent.putExtra("taskData", updatedTaskInfo);
-                startActivity(createIntent);
+                createIntent.putExtra("editOnly", true);
+                startActivityForResult(createIntent, EDIT);
+            }
+        }
+        else if(requestCode == CREATE_NEW){
+            if(resultCode == RESULT_OK){
+                Toast.makeText(this, "new task request saved", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+            else{
+                Toast.makeText(this, "request canceled", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+            }
+        }
+        else if(requestCode == EDIT){
+            if(resultCode == RESULT_OK){
+                //send back to confirmation screen with new data
+                Bundle extras = getIntent().getExtras();
+                try{
+                    TaskData taskData = (TaskData) extras.getSerializable("passBack");
+                    Intent confirmIntent = new Intent(this, UpdateConfirm.class);
+                    confirmIntent.putExtra("taskData", taskData);
+                    confirmIntent.putExtra("delete", delete);
+                    confirmIntent.putExtra("taskID", taskID);
+                    startActivityForResult(confirmIntent, CONFIRM_UPDATE);
+                }
+                catch(NullPointerException e){
+                    Log.wtf(TAG, "ERROR GETTING taskData info, please contact help");
+                }
             }
         }
     }
@@ -130,7 +164,7 @@ public class UpdateTask extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Didn't find matching task", Toast.LENGTH_SHORT).show();
                                 Intent createIntent = new Intent(getApplicationContext(), CreateTask.class);
                                 createIntent.putExtra("taskData", taskData);
-                                startActivity(createIntent);
+                                startActivityForResult(createIntent, CREATE_NEW);
                             }
                         }
                     }
