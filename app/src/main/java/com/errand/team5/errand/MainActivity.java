@@ -73,6 +73,10 @@ public class MainActivity extends AppCompatActivity
     //The request code for location permissions
     private final int LOCATION_PERMISSION = 99;
 
+    //Broadcast receivers
+    private BroadcastReceiver createReceiver;
+    private BroadcastReceiver searchReceiver;
+    private BroadcastReceiver updateReceiver;
 
 
     //Debugging
@@ -184,6 +188,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         checkPermissions();
+
+        //Set up broadcast receivers
+        createReceiver = new CreateReceiver();
+        searchReceiver = new SearchReceiver();
+        updateReceiver = new UpdateReceiver();
     }
 
     private void updateUI() {
