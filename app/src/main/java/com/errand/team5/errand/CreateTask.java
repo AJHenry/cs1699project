@@ -327,7 +327,7 @@ public class CreateTask extends AppCompatActivity {
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
         double dBasePrice = costInput.getRawValue()/100.0;
-        long basePrice = costInput.getRawValue();
+        long basePrice = costInput.getRawValue()/100;
         String dropOffAddress = "";
         if(dropOffPlace != null) {
             dropOffAddress = dropOffPlace.getAddress().toString();
@@ -413,6 +413,7 @@ public class CreateTask extends AppCompatActivity {
                 showSummary(title, description, basePrice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
             }
             else{
+                Log.e(TAG, "Returning edited task data to UpdateTask");
                 TaskData passBack = new TaskData();
                 passBack.setTitle(title);
                 passBack.setDescription(description);

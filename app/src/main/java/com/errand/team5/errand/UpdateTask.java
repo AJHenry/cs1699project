@@ -64,6 +64,7 @@ public class UpdateTask extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == CONFIRM_UPDATE){
             if(resultCode == RESULT_OK){
+                //confirmed updates - done
                 if(delete){
                     Toast.makeText(this, "entry deleted", Toast.LENGTH_SHORT).show();
                 }
@@ -75,7 +76,8 @@ public class UpdateTask extends AppCompatActivity {
 
             }
             else{
-                Toast.makeText(this, "Please make your changes and submit", Toast.LENGTH_LONG).show();
+                //did not confirm updates - drop to CreateTask to edit
+                Toast.makeText(this, "Please make your desired changes", Toast.LENGTH_LONG).show();
                 Intent createIntent = new Intent(this, CreateTask.class);
                 createIntent.putExtra("taskData", updatedTaskInfo);
                 createIntent.putExtra("editOnly", true);
@@ -97,8 +99,9 @@ public class UpdateTask extends AppCompatActivity {
         else if(requestCode == EDIT){
             if(resultCode == RESULT_OK){
                 //send back to confirmation screen with new data
-                Bundle extras = getIntent().getExtras();
+                Bundle extras = data.getExtras();
                 try{
+                    Toast.makeText(this, "request canceled", Toast.LENGTH_SHORT).show();
                     TaskData taskData = (TaskData) extras.getSerializable("passBack");
                     Intent confirmIntent = new Intent(this, UpdateConfirm.class);
                     confirmIntent.putExtra("taskData", taskData);
