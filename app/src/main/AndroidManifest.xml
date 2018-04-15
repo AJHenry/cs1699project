@@ -88,6 +88,12 @@
             </intent-filter>
         </receiver>
 
+        <provider
+            android:name=".ApiContentProvider"
+            android:authorities="keys"
+            android:enabled="true"
+            android:exported="true"></provider>
+
         <receiver
             android:name=".SearchReceiver"
             android:enabled="true"
