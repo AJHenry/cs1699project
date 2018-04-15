@@ -130,7 +130,7 @@ public class MyTasks extends Fragment {
      * Shows the data when it is a available
      * @param errandList
      */
-    private void generateFeed(ArrayList<TaskModel> errandList) {
+    private void generateFeed(final ArrayList<TaskModel> errandList) {
         Log.d(TAG, "Generated Feed");
 
         //Get rid of the spinner
@@ -142,8 +142,10 @@ public class MyTasks extends Fragment {
         feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                Toast.makeText(getView().getContext(), "Clicked on " + position, Toast.LENGTH_LONG).show();
+                Intent task = new Intent(getContext(), Task.class);
+                task.putExtra("taskId", errandList.get(position).getTaskId());
+                startActivity(task);
+                //Toast.makeText(getView().getContext(), "Clicked on " + position, Toast.LENGTH_LONG).show();
             }
         });
     }

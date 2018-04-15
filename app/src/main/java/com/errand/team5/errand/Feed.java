@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -78,6 +79,8 @@ public class Feed extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+
+
         //Firebase instance
         mAuth = FirebaseAuth.getInstance();
 
@@ -107,6 +110,11 @@ public class Feed extends Fragment {
 
     @Override
     public void onResume() {
+        try {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Home");
+        }catch (NullPointerException e){
+
+        }
         Log.d(TAG, "onResume");
         //spinner.setVisibility(View.VISIBLE);
         startLocationService();
@@ -215,8 +223,8 @@ public class Feed extends Fragment {
         //TODO display a text with no tasks available in your area
         if (errandList.isEmpty()) {
             //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
-            Snackbar snackbar = Snackbar
-                    .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+            //Snackbar snackbar = Snackbar
+                    //.make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
                     /*
                     .setAction("RETRY", new View.OnClickListener() {
                         @Override
@@ -224,23 +232,27 @@ public class Feed extends Fragment {
                         }
                     });
                     */
-            snackbar.show();
+            //snackbar.show();
         }
 
         //Get rid of the spinner
         spinner.setVisibility(View.GONE);
 
-        TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), location);
+        try {
+            TaskFeedAdapter adapter = new TaskFeedAdapter(errandList, getView().getContext(), location);
 
-        feed.setAdapter(adapter);
-        feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent task = new Intent(getContext(), Task.class);
-                task.putExtra("taskId", errandList.get(position).getTaskId());
-                startActivity(task);
-            }
-        });
+            feed.setAdapter(adapter);
+            feed.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Intent task = new Intent(getContext(), Task.class);
+                    task.putExtra("taskId", errandList.get(position).getTaskId());
+                    startActivity(task);
+                }
+            });
+        }catch(NullPointerException e){
+
+        }
     }
 
     //Gets called from startLocation()
