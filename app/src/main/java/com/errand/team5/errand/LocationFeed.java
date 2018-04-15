@@ -27,6 +27,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
 
@@ -63,9 +65,14 @@ public class LocationFeed extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
+        String taskData = getIntent().getStringExtra("taskData");
+        JsonParser parser = new JsonParser();
+        JsonObject obj = parser.parse(taskData).getAsJsonObject();
+        String apiKey = obj.get("apiKey").getAsString();
+        lat = obj.get("lat").getAsDouble();
+        lng = obj.get("lng").getAsDouble();
 
-        lat = getIntent().getDoubleExtra("lat", 0.0);
-        lng = getIntent().getDoubleExtra("lng", 0.0);
+
         //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
         Snackbar snackbar = Snackbar
                 .make(findViewById(R.id.search_layout), "Received location from intent lat: "+lat + " long: "+lng, Snackbar.LENGTH_INDEFINITE);
