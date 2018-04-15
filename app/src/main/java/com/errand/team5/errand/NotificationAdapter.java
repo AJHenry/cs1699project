@@ -66,9 +66,25 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
             viewHolder.dismiss = (Button) convertView.findViewById(R.id.button_dismiss);
             viewHolder.confirm = (Button) convertView.findViewById(R.id.button_confirm);
 
+            viewHolder.profile.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //Show the profile fragment
+                    showProfile();
+                }
+            });
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (com.errand.team5.errand.NotificationAdapter.ViewHolder) convertView.getTag();
+        }
+
+        if(noti.getType() == Notification.NEEDS_APPROVAL || noti.getType() == Notification.NEEDS_CONFIRMATION)
+        {
+            otherUser = noti.getRequester();
+        }
+        else
+        {
+            otherUser = noti.getCreator();
         }
 
 
@@ -76,7 +92,6 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
         {
             //this notification exists in the creators table
             //therefore otherUser should be the requester
-            otherUser = noti.getRequester();
 
             if(noti.getType() == Notification.NEEDS_APPROVAL && noti.getStatus() == Notification.OPEN)
             {
@@ -124,7 +139,6 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
         {
             //this notification exists in the requester's table
             //there for otherUser should be the creator
-            otherUser = noti.getCreator();
 
             if(noti.getType() == Notification.PENDING_APPROVAL && noti.getStatus() == Notification.OPEN)
             {
@@ -244,6 +258,25 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
             //delete notification on button press
             creatorNotiRef.setValue(null);
         }
+    }
+
+    public void showProfile() {
+        final Dialog dialog = new Dialog(getContext());
+        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.fragment_profile);
+
+        ImageView img = (ImageView) dialog.findViewById(R.id.profile_picture);
+        String imgurl = otherUser.getPhotoUrl();
+        Glide.with(getContext())
+                .load(imgurl)
+                .apply(RequestOptions.circleCropTransform())
+                .into(img);
+
+        //Do processing here
+
+        dialog.show();
+
     }
 
 

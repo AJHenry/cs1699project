@@ -233,26 +233,61 @@ public class Task extends AppCompatActivity {
 
                 //load the notfications into the users notifications table
                 DatabaseReference creatorEntry = testUserTable.child(creatorId);
-                DatabaseReference userEntry = testUserTable.child(userId);
+                final DatabaseReference userEntry = testUserTable.child(userId);
 
                 DatabaseReference creatorNotificationsTable = creatorEntry.child("notifications");
                 DatabaseReference userNotificationTable = userEntry.child("notifications");
 
-                DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
-                DatabaseReference userNewNotificationRef = userNotificationTable.child(creatorNewNotificationRef.getKey());
+                final DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
+                final DatabaseReference userNewNotificationRef = userNotificationTable.child(creatorNewNotificationRef.getKey());
 
-                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, userId, creatorId, Notification.NEEDS_APPROVAL, Notification.OPEN);
-                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, userId, creatorId, Notification.PENDING_APPROVAL, Notification.OPEN);
 
-                creatorNewNotificationRef.setValue(newNotficationCreator);
-                userNewNotificationRef.setValue(newNotificationUser);
+                creatorEntry.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String cId = dataSnapshot.child("uid").getValue(String.class);
+                        String cPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
+                        String cDisplayName = dataSnapshot.child("displayName").getValue(String.class);
+                        String cEmail = dataSnapshot.child("email").getValue(String.class);
+                        final User creator = new User(cId, cPhotoUrl, cDisplayName, cEmail);
+                        userEntry.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                thisErrand.child("status").setValue(1);
-                requestButton.setEnabled(false);
-                Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context, MainActivity.class);
-                //put any extras if needed
-                startActivity(intent);
+                                String rId = dataSnapshot.child("uid").getValue(String.class);
+                                String rPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
+                                String rDisplayName = dataSnapshot.child("displayName").getValue(String.class);
+                                String rEmail = dataSnapshot.child("email").getValue(String.class);
+                                final User requester = new User(rId, rPhotoUrl, rDisplayName, rEmail);
+
+                                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, requester, creator, Notification.NEEDS_APPROVAL, Notification.OPEN);
+                                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, requester, creator, Notification.PENDING_APPROVAL, Notification.OPEN);
+
+                                creatorNewNotificationRef.setValue(newNotficationCreator);
+                                userNewNotificationRef.setValue(newNotificationUser);
+
+                                thisErrand.child("status").setValue(1);
+                                requestButton.setEnabled(false);
+                                Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(context, MainActivity.class);
+                                //put any extras if needed
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
             }
 
             @Override
@@ -286,4 +321,6 @@ public class Task extends AppCompatActivity {
                             //          object. But I'm not entirely sure that is possible.
 
     }
+
+
 }
