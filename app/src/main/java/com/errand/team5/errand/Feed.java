@@ -1,7 +1,10 @@
 package com.errand.team5.errand;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -51,6 +54,9 @@ public class Feed extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private DatabaseReference myRef;
+
+    //Used for the broadcast receiver
+    BroadcastReceiver receiver = null;
 
     //Debug
     private final String TAG = "FeedClass";
@@ -112,6 +118,48 @@ public class Feed extends Fragment {
         Log.d(TAG, "onPause");
         stopLocation();
         super.onPause();
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+
+        //Start the broadcast receiver
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.errand.team5.errand.SEND_SEARCH");
+
+        //Create a new receiver
+        receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                //TODO query firebase for search term
+                String term = intent.getStringExtra("SearchTerm");
+                if(!(term.isEmpty())){
+                    //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
+                    Snackbar snackbar = Snackbar
+                            .make(getActivity().findViewById(R.id.main_layout), "Received term from Service, term: "+term, Snackbar.LENGTH_INDEFINITE);
+                    snackbar.show();
+                }else{
+                    Toast.makeText(getContext(), "Search term provided was empty", Toast.LENGTH_LONG).show();
+                    Snackbar snackbar = Snackbar
+                            .make(getActivity().findViewById(R.id.main_layout), "Search term provided was empty", Snackbar.LENGTH_INDEFINITE);
+                    snackbar.show();
+                }
+            }
+        };
+
+        //Register it
+        getActivity().registerReceiver(receiver, filter);
+    }
+
+    @Override
+    public void onStop(){
+        //Unregister the receiver
+        if (receiver != null) {
+            getActivity().unregisterReceiver(receiver);
+            receiver = null;
+        }
+        super.onStop();
     }
 
     /**
@@ -202,7 +250,7 @@ public class Feed extends Fragment {
      * generateFeed in order to display them to the user
      * TODO Add a content provider to store the data in
      *
-     * @param userLocation Location of the user to query errands on
+     * @param userLocation Search of the user to query errands on
      */
     private void updateUI(final Location userLocation) {
         //TODO decide when to update
@@ -256,7 +304,9 @@ public class Feed extends Fragment {
                             for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
                                 //Add the errand to the list
                                 TaskModel errand = errandMap.getValue(TaskModel.class);
-                                errands.add(errand);
+                                if (errand.status == 0) {
+                                    errands.add(errand);
+                                }
                             }
 
                             if (isReady[0]) {
