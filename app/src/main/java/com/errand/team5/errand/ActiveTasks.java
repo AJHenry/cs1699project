@@ -30,9 +30,6 @@ public class ActiveTasks extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Current Tasks");
-
         TabLayout tabLayout = (TabLayout) getView().findViewById(R.id.tab_layout);
         tabLayout.addTab(tabLayout.newTab().setText("My Tasks"));
         tabLayout.addTab(tabLayout.newTab().setText("Others Tasks"));
@@ -59,5 +56,15 @@ public class ActiveTasks extends Fragment {
 
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        try {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Current Errands");
+        }catch (NullPointerException e){
+
+        }
+        super.onResume();
     }
 }

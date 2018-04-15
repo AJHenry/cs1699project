@@ -38,6 +38,7 @@ public class Notifications extends AppCompatActivity {
         setContentView(R.layout.activity_notifications);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         //Firebase instance
         context = this;
@@ -107,5 +108,21 @@ public class Notifications extends AppCompatActivity {
         } else {
             this.user = user;
         }
+    }
+
+    @Override
+    public void onResume() {
+        try {
+            getSupportActionBar().setTitle("Notifications");
+        }catch (NullPointerException e){
+
+        }
+        super.onResume();
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
     }
 }

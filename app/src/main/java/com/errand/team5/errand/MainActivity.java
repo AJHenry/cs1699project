@@ -115,10 +115,10 @@ public class MainActivity extends AppCompatActivity
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 //Successfully create task
-                Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
             } else {
                 //Failure
-                Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == SIGN_IN) {
             fillUserUI(mAuth.getCurrentUser());
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity
         //Toolbar options
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Task Feed");
+        getSupportActionBar().setTitle("Home");
 
         //Create Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.create_task);
@@ -308,7 +308,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_notis) {
             Intent intent = new Intent(this, Notifications.class);
             startActivity(intent);
-            return true;
+            //return true;
         }
 
         return super.onOptionsItemSelected(item);
