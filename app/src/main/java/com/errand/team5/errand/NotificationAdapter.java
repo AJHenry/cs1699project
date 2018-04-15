@@ -177,11 +177,12 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
     public void updateNoti(String button, Notification noti)
     {
         String nId = noti.getnId();
-        String uID1 = noti.getCreator().getUid();
-        String uID2 = noti.getRequester().getUid();
+        String creatorID = noti.getCreator().getUid();
+        String requesterID = noti.getRequester().getUid();
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference user1NotiRef = db.child("testUsers").child(uID1).child("notifications").child(nId);
-        DatabaseReference user2NotiRef = db.child("testUsers").child(uID2).child("notifications").child(nId);
+        DatabaseReference creatorNotiRef = db.child("testUsers").child(creatorID).child("notifications").child(nId);
+        DatabaseReference requesterNotiRef = db.child("testUsers").child(requesterID).child("notifications").child(nId);
+        DatabaseReference taskRef = db.child("errands").child(noti.taskID);
 
 
         if(noti.getType() == Notification.NEEDS_APPROVAL && noti.getStatus() == Notification.OPEN)
@@ -189,37 +190,59 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
             if(button.equals("Accept"))
             {
                 //update noti to a p_A;C/n_A;C
-
+                creatorNotiRef.child("type").setValue(Notification.NEEDS_APPROVAL);
+                creatorNotiRef.child("status").setValue(Notification.CLOSED);
+                requesterNotiRef.child("type").setValue(Notification.PENDING_APPROVAL);
+                requesterNotiRef.child("status").setValue(Notification.CLOSED);
+                taskRef.child("status").setValue("2");
             }
             else if(button.equals("Decline"))
             {
                 //delete p_A;O/n_A;O from tables
+                creatorNotiRef.setValue(null);
+                requesterNotiRef.setValue(null);
+                taskRef.child("status").setValue(0);
             }
         }
         else if(noti.getType() == Notification.PENDING_APPROVAL && noti.getStatus() == Notification.CLOSED)
         {
             //confirm button pressed
             //update noti to a p_C;O/n_C;O
-
+            creatorNotiRef.child("type").setValue(Notification.NEEDS_CONFIRMATION);
+            creatorNotiRef.child("status").setValue(Notification.OPEN);
+            requesterNotiRef.child("type").setValue(Notification.PENDING_CONFIRMATION);
+            requesterNotiRef.child("status").setValue(Notification.OPEN);
         }
         else if(noti.getType() == Notification.NEEDS_CONFIRMATION && noti.getStatus() == Notification.OPEN)
         {
             if(button.equals("Confirm"))
             {
                 //update noti to p_C;C/n_C;C
+                 creatorNotiRef.child("type").setValue(Notification.NEEDS_CONFIRMATION);
+                 creatorNotiRef.child("status").setValue(Notification.CLOSED);
+                 requesterNotiRef.child("type").setValue(Notification.PENDING_CONFIRMATION);
+                 requesterNotiRef.child("status").setValue(Notification.CLOSED);
+                 taskRef.child("status").setValue(3);
             }
             else if(button.equals("Deny"))
             {
                 //update noti back to p_A;C/n_;C
+                creatorNotiRef.child("type").setValue(Notification.NEEDS_APPROVAL);
+                creatorNotiRef.child("status").setValue(Notification.CLOSED);
+                requesterNotiRef.child("type").setValue(Notification.PENDING_APPROVAL);
+                requesterNotiRef.child("status").setValue(Notification.CLOSED);
+                taskRef.child("status").setValue(2);
             }
         }
         else if(noti.getType() == Notification.PENDING_APPROVAL && noti.getStatus() == Notification.CLOSED)
         {
             //delete notification on button press
+            requesterNotiRef.setValue(null);
         }
         else if(noti.getType() == Notification.NEEDS_APPROVAL && noti.getStatus() == Notification.CLOSED)
         {
             //delete notification on button press
+            creatorNotiRef.setValue(null);
         }
     }
 
