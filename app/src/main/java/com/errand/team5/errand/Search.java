@@ -60,6 +60,7 @@ public class Search extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG,"In Search.java");
         setContentView(R.layout.activity_search);
 
         term = getIntent().getStringExtra("SearchTerm");
