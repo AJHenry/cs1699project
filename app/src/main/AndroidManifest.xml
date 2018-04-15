@@ -37,7 +37,7 @@
         <activity android:name=".CreateTask" />
         <activity android:name=".Login" />
         <activity android:name=".Task" />
-        <!--             BraintreeDirect required activity for Express Paypal Checkout integration -->
+        <!-- BraintreeDirect required activity for Express Paypal Checkout integration -->
         <activity
             android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
             android:launchMode="singleTask">
@@ -50,6 +50,19 @@
                 <data android:scheme="com.errand.team5.errand.braintree" />
             </intent-filter>
         </activity>
+
+        <!-- Required to use PayPal -->
+        <activity android:name="com.paypal.android.sdk.payments.PayPalProfileSharingActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.ProfileSharingConsentActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.FuturePaymentInfoActivity" />
+        <activity android:name="com.paypal.android.sdk.payments.LoginActivity" />
+        <activity
+            android:name="com.paypal.android.sdk.payments.PayPalTouchActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <service
+            android:name="com.paypal.android.sdk.payments.PayPalService"
+            android:exported="false" />
 
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -76,6 +89,28 @@
         </receiver>
 
         <activity android:name=".Notifications"></activity>
+        <provider
+            android:name=".ApiContentProvider"
+            android:authorities="keys"
+            android:enabled="true"
+            android:exported="true" />
+
+        <receiver
+            android:name=".SearchReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.errand.team5.errand.SearchReceiver" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".BoundService"
+            android:exported="true" />
+
+        <activity android:name=".Search" />
+        <activity android:name=".LocationFeed"
+            android:exported="true"></activity>
     </application>
 
 </manifest>

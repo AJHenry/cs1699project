@@ -78,7 +78,7 @@ public class Notification implements Serializable {
     public void setTaskID(String taskID) {
         this.taskID = taskID;
     }
-
+  
     public User getRequester() {
         return requester;
     }

@@ -19,6 +19,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.blackcat.currencyedittext.CurrencyEditText;
+import com.braintreepayments.api.BraintreeFragment;
+import com.braintreepayments.api.dropin.DropInRequest;
+import com.braintreepayments.api.exceptions.InvalidArgumentException;
+import com.firebase.geofire.GeoFire;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.location.places.Place;
@@ -27,6 +32,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.android.SphericalUtil;
@@ -36,15 +42,7 @@ import org.w3c.dom.Text;
 import java.text.NumberFormat;
 
 
-public class CreateTask extends AppCompatActivity implements View.OnClickListener {
-
-    private Button[] amount = new Button[3];
-    private Button amount_unfocus;
-    private int[] amount_id = {R.id.c1, R.id.c2, R.id.c3};
-
-    private Button[] type = new Button[2];
-    private Button type_unfocus;
-    private int[] type_id = {R.id.hours, R.id.mins};
+public class CreateTask extends AppCompatActivity {
 
     //Places from PlacePicker
     private Place dropOffPlace;
@@ -61,6 +59,9 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     private final int DROP_OFF_PLACE_PICKER = 1;
     private final int ERRAND_PLACE_PICKER = 2;
 
+    //Activity results from Braintree drop-in UI
+    private final int BRAINTREE_DROPIN = 3;
+
     //Components
     private Button dropOffLocation;
     private Button errandLocation;
@@ -75,29 +76,38 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     private FirebaseAuth mAuth;
     private FirebaseUser user;
 
-
-
-    //Global Values
-    private int currentTimeSelected = 0;
-
-    //TODO Check for user login
+    //Braintree/Paypal
+    private BraintreeFragment braintreeInstance;
+    // this is an unsecure temp tokenization key for Braintree, will replace later
+    private String btAuth = "sandbox_64h4y8bv_nyqs77zshf4f6wsc";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_task);
-        getSupportActionBar().setTitle("Create Task");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Needs to be wrapped in a try-catch for a nullpointer
+        try {
+            getSupportActionBar().setTitle("Create Task");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }catch(NullPointerException e){
+            Log.e(TAG, "Error setting title and back button for actionBar");
+        }
 
         //Get the references to firebase
         mAuth = FirebaseAuth.getInstance();
 
+        //Get references to Braintree
+        try {
+            braintreeInstance = BraintreeFragment.newInstance(this, btAuth);
+        }
+        catch(InvalidArgumentException e){
+            Log.wtf(TAG, "ERROR connecting to Braintree, please contact help");
+        }
+
         //Get location passed from MainActivity
         Bundle extras = getIntent().getExtras();
-
-        //Get the data if it is not nll
-
 
         //Components
         dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
@@ -109,6 +119,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
 
+        //Used for getting errand info from Team 4
         TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
@@ -150,7 +161,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             }
         });
 
-
+        //Set on click listeners for the pickers
         errandLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -164,95 +175,39 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 dropOffPicker();
             }
         });
-
-        for (int i = 0; i < amount.length; i++) {
-            amount[i] = (Button) findViewById(amount_id[i]);
-            amount[i].setBackgroundColor(Color.rgb(207, 207, 207));
-            amount[i].setOnClickListener(this);
-        }
-
-        for (int i = 0; i < type.length; i++) {
-            type[i] = (Button) findViewById(type_id[i]);
-            type[i].setBackgroundColor(Color.rgb(207, 207, 207));
-            type[i].setOnClickListener(this);
-        }
-
-        type_unfocus = type[0];
-        amount_unfocus = amount[0];
-
-        setTypeFocus(amount_unfocus, amount[0]);
-        setTypeFocus(type_unfocus, type[0]);
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if user is signed in (non-null)
         FirebaseUser currentUser = mAuth.getCurrentUser();
         checkLogin(currentUser);
     }
 
     //Check if their profile is null, if so, redirect them to login
     private void checkLogin(FirebaseUser user) {
-        // TODO Fix error where application closes after first login
         if (user == null) {
             Intent login = new Intent(this, Login.class);
             startActivity(login);
-            //finish();
         } else {
             this.user = user;
         }
     }
 
+    //TODO Anyone know what this is for?
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
     }
 
-    @Override
-    public void onClick(View v) {
-        //setTypeForcus(type_unfocus, (Button) findViewById(v.getId()));
-        //Or use switch
-        switch (v.getId()) {
-            case R.id.c1:
-                setAmountFocus(amount_unfocus, amount[0]);
-                break;
 
-            case R.id.c2:
-                setAmountFocus(amount_unfocus, amount[1]);
-                break;
-
-            case R.id.c3:
-                setAmountFocus(amount_unfocus, amount[2]);
-                break;
-
-            case R.id.hours:
-                setTypeFocus(type_unfocus, type[0]);
-                break;
-
-            case R.id.mins:
-                setTypeFocus(type_unfocus, type[1]);
-                break;
-        }
-    }
-
-    private void setTypeFocus(Button btn_unfocus, Button btn_focus) {
-        btn_unfocus.setTextColor(Color.rgb(49, 50, 51));
-        btn_unfocus.setBackgroundColor(Color.rgb(207, 207, 207));
-        btn_focus.setTextColor(Color.rgb(255, 255, 255));
-        btn_focus.setBackgroundColor(Color.rgb(3, 106, 150));
-        this.type_unfocus = btn_focus;
-    }
-
-    private void setAmountFocus(Button btn_unfocus, Button btn_focus) {
-        btn_unfocus.setTextColor(Color.rgb(49, 50, 51));
-        btn_unfocus.setBackgroundColor(Color.rgb(207, 207, 207));
-        btn_focus.setTextColor(Color.rgb(255, 255, 255));
-        btn_focus.setBackgroundColor(Color.rgb(3, 106, 150));
-        this.amount_unfocus = btn_focus;
-    }
-
+    /**
+     * Used for the checkmark in the top right
+     * @param menu
+     * @return
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -266,9 +221,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.create_task:
-                //TODO Check to make sure they filled out the required fields
                 createTask();
-                //setRequest();
                 return true;
             case android.R.id.home:
                 this.finish();
@@ -284,22 +237,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         finish();
     }
 
+    /**
+     * Used for accessing the Google Place Picker API for the drop off location
+     */
     private void dropOffPicker() {
-
         try {
+            //Create a new Place Picker intent
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            //If location is not null, put a pin near there
-            //WARNING, Google Place picker has a bug where it does not use setLatLngBounds correctly
-            if (loc != null) {
-                Log.d(TAG, "mLocation available");
-                //Create new latlon
-                LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
-                //Radius in meters
-                double radius = 50;
-                //Create a new bound and pass it
-                LatLngBounds mLatLngBounds = toBounds(mLatLng, radius);
-                //builder.setLatLngBounds(mLatLngBounds);
-            }
+
             //Start the activity
             startActivityForResult(builder.build(this), DROP_OFF_PLACE_PICKER);
         } catch (GooglePlayServicesNotAvailableException e) {
@@ -308,21 +253,16 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    /**
+     * Used to pick the errand location
+     * CURRENTLY UNUSED
+     */
     private void errandPicker() {
-
         try {
+            //Create a new place picker intent
             PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-            //If location is not null, put a pin near there
-            if (loc != null) {
-                //Create new latlon
-                LatLng mLatLng = new LatLng(loc.getLongitude(), loc.getLatitude());
-                //Radius in meters
-                double radius = 50;
-                //Create a new bound and pass it
-                LatLngBounds mLatLngBounds = toBounds(mLatLng, radius);
-                //builder.setLatLngBounds(mLatLngBounds);
-            }
-            //Start the activity
+
+            //Start the activity for place picker
             startActivityForResult(builder.build(this), ERRAND_PLACE_PICKER);
         } catch (GooglePlayServicesNotAvailableException e) {
         } catch (GooglePlayServicesRepairableException e) {
@@ -330,7 +270,14 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
     }
 
 
+    /**
+     * Method callback for Place Picker
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        //Drop off location place picker
         if (requestCode == DROP_OFF_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 dropOffPlace = PlacePicker.getPlace(data, this);
@@ -350,32 +297,37 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 errandLocation.setText(errandPlace.getAddress());
             }
         }
+
+        if (requestCode == BRAINTREE_DROPIN) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(this, "Payment held until task completion!", Toast.LENGTH_LONG).show();
+                Intent returnIntent = new Intent();
+                setResult(Activity.RESULT_OK, returnIntent);
+                finish();
+            }
+        }
     }
 
-    public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
-        double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
-        LatLng southwestCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0);
-        LatLng northeastCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
-        return new LatLngBounds(southwestCorner, northeastCorner);
-    }
 
-
+    /**
+     * Used for getting the values from the input fields and verifying they are valid
+     *
+     * Called when a person hits the checkmark in the toolbar
+     */
     public void createTask(){
-        //TODO Verify fields aren't blank
         boolean dataSatisfied = true;
 
+        //Get all the info from the inputs
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        double baseprice = costInput.getRawValue()/100.0;
+        double basePrice = costInput.getRawValue()/100.0;
         String dropOffAddress = "";
         if(dropOffPlace != null) {
             dropOffAddress = dropOffPlace.getAddress().toString();
         }
-        //String errandAddress = errandPlace.getAddress().toString();
         String specialInstructions = specialInstructionsInput.getText().toString();
 
+        //Spinner values
         int timeToComplete = 0;
         if (timeTypeInput.getValue() == 1) {
             // HOUR
@@ -385,7 +337,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             timeToComplete = (timeAmountInput.getValue() + 1) * 15;
         }
 
-        //TextInputLayout
+        //TextInputLayout fields, used for displaying error messages
         TextInputLayout titleInputLayout = (TextInputLayout) findViewById(R.id.text_input_title);
         TextInputLayout descriptionInputLayout = (TextInputLayout) findViewById(R.id.text_input_description);
         TextInputLayout basePriceInputLayout = (TextInputLayout) findViewById(R.id.text_input_cost);
@@ -396,11 +348,11 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         addressErrorLayout.setText(null);
 
 
-        //Fee Calculation
-        double fees = baseprice * 0.20;
+        //TODO Fee Calculation
+        double fees = basePrice * 0.20;
+        double subtotal = fees + basePrice;
 
-        double subtotal = fees + baseprice;
-
+        //Error checking
         if(title.length() < 5){
             titleInputLayout.setErrorEnabled(true);
             titleInputLayout.setError("Enter a longer title");
@@ -436,7 +388,7 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
         }
 
 
-        if(baseprice <= 0.0){
+        if(basePrice <= 0.0){
             //Display error underneath
             basePriceInputLayout.setErrorEnabled(true);
            basePriceInputLayout.setError("Cost*");
@@ -447,21 +399,26 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
             addressErrorLayout.setText("Please select a valid address");
             dataSatisfied = false;
         }
-        /*
-        if(errandAddress == null || errandAddress.isEmpty()){
-            //Display error underneath
-
-            dataSatisfied = false;
-        }
-        */
 
         //Data is valid
         if(dataSatisfied) {
-            showSummary(title, description, baseprice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
+            showSummary(title, description, basePrice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
         }
     }
 
 
+    /**
+     * Used for showing a summary of the person's errand
+     * TODO display user errand time
+     * @param title
+     * @param description
+     * @param basePrice
+     * @param fees
+     * @param subtotal
+     * @param dropOffPlace
+     * @param specialInstructions
+     * @param timeToComplete
+     */
     public void showSummary(final String title, final String description, final double basePrice, final double fees, double subtotal, final Place dropOffPlace, final String specialInstructions, final int timeToComplete){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -515,7 +472,6 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
                 createdErrand.setTimeToCompleteMins(timeToComplete);
                 createdErrand.setUser(new User(user.getUid(), user.getPhotoUrl().toString(), user.getDisplayName(), user.getEmail()));
 
-
                 //Pass it to database
                 if(createTaskEntry(createdErrand)){
                     //Display success to user
@@ -523,11 +479,18 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
                     //Need to set the result to ok
                     if (!toSend){
+                        //Paypal drop-in payment UI (testing)
+                        braintreeDropIn();
+
+                        /*
                         Intent returnIntent = new Intent();
                         setResult(Activity.RESULT_OK, returnIntent);
                         finish();
+                        */
                     }
                     else {
+                        //Used for passing data along to the next app
+                        // Only called when we receive data from another app
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
                         Bundle extras = new Bundle();
                         extras.putInt("whichTrig",4);
@@ -558,28 +521,62 @@ public class CreateTask extends AppCompatActivity implements View.OnClickListene
 
     }
 
+    /**
+     * Method responsible for writing to firebase
+     * @param newErrand The errand object to insert
+     * @return True if successful, false otherwise
+     */
     public boolean createTaskEntry(TaskModel newErrand){
         Log.d(TAG, "Created entry");
+
+        //Status of the operation
+        final boolean result = true;
 
         //Save to the reference for all tasks
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference ref = database.getReference("errands");
-        String id = ref.push().getKey();
 
-
+        //Create a new task ID for reference
+        String taskId = ref.push().getKey();
 
         //Set the rest of the bookkeeping data
-        newErrand.setTaskId(id);
+        newErrand.setTaskId(taskId);
         newErrand.setCreatorId(user.getUid());
         newErrand.setPublishTime(new mTimestamp());
 
-        ref.child(id).setValue(newErrand);
+        //Add to firebase
+        ref.child(taskId).setValue(newErrand);
 
-        //Save to the reference for users tasks
-        //DatabaseReference createdTasks = database.getReference("created_tasks");
-        //createdTasks.child(user.getUid()).push().setValue(newErrand.getTaskId());
+        //Now we need to save to Geofire so we are able to query based on location
+        DatabaseReference geofireRef = FirebaseDatabase.getInstance().getReference("geofire");
+        GeoFire geoFire = new GeoFire(geofireRef);
+
+        //Set the key as the taskId, and the location as the drop off address
+        double lat = newErrand.getDropOffDestination().getLatitude();
+        double lng = newErrand.getDropOffDestination().getLongitude();
+
+        geoFire.setLocation(taskId, new GeoLocation(lat, lng), new GeoFire.CompletionListener() {
+            @Override
+            public void onComplete(String key, DatabaseError error) {
+                //See if there's an error
+                if (error != null) {
+                    //System.err.println("There was an error saving the location to GeoFire: " + error);
+                    Log.e(TAG, "Error writing to geofire database: "+error);
+                }
+            }
+        });
 
         //Tell them it was successful
-        return true;
+        return result;
+    }
+
+    /**
+     * Method responsible for opening Braintree drop-in UI for payment
+     * @return none
+     */
+    public void braintreeDropIn(){
+        DropInRequest dropInRequest = new DropInRequest()
+                .clientToken("eyJ2ZXJzaW9uIjoyLCJhdXRob3JpemF0aW9uRmluZ2VycHJpbnQiOiIyMTdhODgwMTcyOGE0ZTgyN2VmNDM0ZGZhYzExNmQ4MzI2ZjU2MjQwOGJkYTc0MTllMTNjYmJkYjkwNzgxMWVkfGNyZWF0ZWRfYXQ9MjAxOC0wNC0wNVQxODoxODowNi41MDc3NDYwMTUrMDAwMFx1MDAyNm1lcmNoYW50X2lkPTM0OHBrOWNnZjNiZ3l3MmJcdTAwMjZwdWJsaWNfa2V5PTJuMjQ3ZHY4OWJxOXZtcHIiLCJjb25maWdVcmwiOiJodHRwczovL2FwaS5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tOjQ0My9tZXJjaGFudHMvMzQ4cGs5Y2dmM2JneXcyYi9jbGllbnRfYXBpL3YxL2NvbmZpZ3VyYXRpb24iLCJjaGFsbGVuZ2VzIjpbXSwiZW52aXJvbm1lbnQiOiJzYW5kYm94IiwiY2xpZW50QXBpVXJsIjoiaHR0cHM6Ly9hcGkuc2FuZGJveC5icmFpbnRyZWVnYXRld2F5LmNvbTo0NDMvbWVyY2hhbnRzLzM0OHBrOWNnZjNiZ3l3MmIvY2xpZW50X2FwaSIsImFzc2V0c1VybCI6Imh0dHBzOi8vYXNzZXRzLmJyYWludHJlZWdhdGV3YXkuY29tIiwiYXV0aFVybCI6Imh0dHBzOi8vYXV0aC52ZW5tby5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tIiwiYW5hbHl0aWNzIjp7InVybCI6Imh0dHBzOi8vY2xpZW50LWFuYWx5dGljcy5zYW5kYm94LmJyYWludHJlZWdhdGV3YXkuY29tLzM0OHBrOWNnZjNiZ3l3MmIifSwidGhyZWVEU2VjdXJlRW5hYmxlZCI6dHJ1ZSwicGF5cGFsRW5hYmxlZCI6dHJ1ZSwicGF5cGFsIjp7ImRpc3BsYXlOYW1lIjoiQWNtZSBXaWRnZXRzLCBMdGQuIChTYW5kYm94KSIsImNsaWVudElkIjpudWxsLCJwcml2YWN5VXJsIjoiaHR0cDovL2V4YW1wbGUuY29tL3BwIiwidXNlckFncmVlbWVudFVybCI6Imh0dHA6Ly9leGFtcGxlLmNvbS90b3MiLCJiYXNlVXJsIjoiaHR0cHM6Ly9hc3NldHMuYnJhaW50cmVlZ2F0ZXdheS5jb20iLCJhc3NldHNVcmwiOiJodHRwczovL2NoZWNrb3V0LnBheXBhbC5jb20iLCJkaXJlY3RCYXNlVXJsIjpudWxsLCJhbGxvd0h0dHAiOnRydWUsImVudmlyb25tZW50Tm9OZXR3b3JrIjp0cnVlLCJlbnZpcm9ubWVudCI6Im9mZmxpbmUiLCJ1bnZldHRlZE1lcmNoYW50IjpmYWxzZSwiYnJhaW50cmVlQ2xpZW50SWQiOiJtYXN0ZXJjbGllbnQzIiwiYmlsbGluZ0FncmVlbWVudHNFbmFibGVkIjp0cnVlLCJtZXJjaGFudEFjY291bnRJZCI6ImFjbWV3aWRnZXRzbHRkc2FuZGJveCIsImN1cnJlbmN5SXNvQ29kZSI6IlVTRCJ9LCJtZXJjaGFudElkIjoiMzQ4cGs5Y2dmM2JneXcyYiIsInZlbm1vIjoib2ZmIn0=");
+        startActivityForResult(dropInRequest.getIntent(this), BRAINTREE_DROPIN);
     }
 }
