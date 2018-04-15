@@ -68,7 +68,7 @@ public class Task extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance().getReference();
         errandsTable = db.child("errands");
-        testUserTable = db.child("testUsers");
+        testUserTable = db.child("users");
         lock = false;
         taskTitle = (TextView) findViewById(R.id.task_title);
         taskCompletionTime = (TextView) findViewById(R.id.task_completion_time);
@@ -200,19 +200,11 @@ public class Task extends AppCompatActivity {
                 creatorEntry.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        String cId = dataSnapshot.child("uid").getValue(String.class);
-                        String cPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
-                        String cDisplayName = dataSnapshot.child("displayName").getValue(String.class);
-                        String cEmail = dataSnapshot.child("email").getValue(String.class);
-                        final User creator = new User(cId, cPhotoUrl, cDisplayName, cEmail);
+                        final User creator = dataSnapshot.getValue(User.class);
                         userEntry.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                String rId = dataSnapshot.child("uid").getValue(String.class);
-                                String rPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
-                                String rDisplayName = dataSnapshot.child("displayName").getValue(String.class);
-                                String rEmail = dataSnapshot.child("email").getValue(String.class);
-                                final User requester = new User(rId, rPhotoUrl, rDisplayName, rEmail);
+                                User requester = dataSnapshot.getValue(User.class);
                                 Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, requester, creator, Notification.NEEDS_APPROVAL, Notification.OPEN);
                                 Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, requester, creator, Notification.PENDING_APPROVAL, Notification.OPEN);
                                 creatorNewNotificationRef.setValue(newNotficationCreator);

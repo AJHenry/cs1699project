@@ -72,7 +72,7 @@ public class Notifications extends AppCompatActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
 
         //Query database for all tasks with creator id of this user
-        DatabaseReference myNotiRef = database.getReference("testUsers").child(user.getUid()).child("notifications");
+        DatabaseReference myNotiRef = database.getReference("users").child(user.getUid()).child("notifications");
 
         myNotiRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
