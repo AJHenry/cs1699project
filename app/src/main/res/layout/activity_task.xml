@@ -280,18 +280,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView7" />
 
             <Button
-                android:id="@+id/editTaskButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Edit"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.929"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/task_completion_time6"
-                app:layout_constraintVertical_bias="0.319" />
-
-            <Button
                 android:id="@+id/button_request"
                 style="@style/Widget.AppCompat.Button.Colored"
                 android:layout_width="wrap_content"
@@ -301,10 +289,8 @@
                 android:text="Request Errand"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.417"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/task_completion_time6"
-                app:layout_constraintVertical_bias="1.0" />
+                app:layout_constraintTop_toBottomOf="@+id/task_completion_time6" />
 
 
         </android.support.constraint.ConstraintLayout>
