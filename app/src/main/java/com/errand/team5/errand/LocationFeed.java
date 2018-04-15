@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.location.Location;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -36,7 +35,7 @@ import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
 import io.nlopez.smartlocation.location.config.LocationParams;
 
-public class Search extends AppCompatActivity {
+public class LocationFeed extends AppCompatActivity {
 
 
     //Components
@@ -46,34 +45,31 @@ public class Search extends AppCompatActivity {
     //Global Variables
     private android.location.Location lastKnownLocation;
     private ArrayList<TaskModel> taskList;
-    private String term;
+    private double lat;
+    private double lng;
 
     //Firebase stuff
     private FirebaseAuth mAuth;
     private FirebaseUser user;
     private DatabaseReference myRef;
 
+
+
     //Debug
     private final String TAG = "Search";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
-        term = getIntent().getStringExtra("SearchTerm");
-        if(!(term.isEmpty())){
-            //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
-            Snackbar snackbar = Snackbar
-                    .make(findViewById(R.id.search_layout), "Received term from Service, term: "+term, Snackbar.LENGTH_INDEFINITE);
-            snackbar.show();
-        }else{
-            Toast.makeText(getApplicationContext(), "Search term provided was empty", Toast.LENGTH_LONG).show();
-            Snackbar snackbar = Snackbar
-                    .make(findViewById(R.id.search_layout), "Search term provided was empty", Snackbar.LENGTH_INDEFINITE);
-            snackbar.show();
-        }
+
+        lat = getIntent().getDoubleExtra("lat", 0.0);
+        lng = getIntent().getDoubleExtra("lng", 0.0);
+        //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
+        Snackbar snackbar = Snackbar
+                .make(findViewById(R.id.search_layout), "Received location from intent lat: "+lat + " long: "+lng, Snackbar.LENGTH_INDEFINITE);
+        snackbar.show();
 
         //Firebase instance
         mAuth = FirebaseAuth.getInstance();
@@ -82,6 +78,10 @@ public class Search extends AppCompatActivity {
         //TODO THIS WILL CAUSE AN ERROR, sometimes if the navigates away from the view when firebase tries to fill it
         //Maybe fixed, someone else confirm
         feed = (ListView) findViewById(R.id.search_feed);
+
+        mLocation location = new mLocation(lat, lng);
+
+        updateUI(location);
     }
 
     /**
@@ -98,21 +98,6 @@ public class Search extends AppCompatActivity {
     }
 
     @Override
-    public void onResume() {
-        Log.d(TAG, "onResume");
-        //spinner.setVisibility(View.VISIBLE);
-        startLocationService();
-        super.onResume();
-    }
-
-    @Override
-    public void onPause() {
-        Log.d(TAG, "onPause");
-        stopLocation();
-        super.onPause();
-    }
-
-    @Override
     public void onStart(){
         super.onStart();
 
@@ -121,51 +106,6 @@ public class Search extends AppCompatActivity {
         checkLogin(currentUser);
     }
 
-    @Override
-    public void onStop(){
-        super.onStop();
-    }
-
-    /**
-     * mLocation Service
-     * Calls the updateUI method
-     */
-    private void startLocationService() {
-        Log.d(TAG, "Started location service");
-
-        long mLocTrackingInterval = 1000 * 5; // 5 sec
-        float trackingDistance = 0;
-        LocationAccuracy trackingAccuracy = LocationAccuracy.HIGH;
-
-        LocationParams.Builder builder = new LocationParams.Builder()
-                .setAccuracy(trackingAccuracy)
-                .setDistance(trackingDistance)
-                .setInterval(mLocTrackingInterval);
-
-        SmartLocation.with(this)
-                .location()
-                //.continuous()
-                .oneFix()
-                .config(builder.build())
-                .start(new OnLocationUpdatedListener() {
-                    @Override
-                    public void onLocationUpdated(android.location.Location location) {
-                        Log.d(TAG, "Updated location");
-                        lastKnownLocation = location;
-                        Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
-                        updateUI(location);
-                    }
-                });
-    }
-
-    /**
-     * Stops location service from running in background
-     */
-    private void stopLocation() {
-        SmartLocation.with(this)
-                .location()
-                .stop();
-    }
 
     /**
      * This generates the feed for the home screen
@@ -180,7 +120,7 @@ public class Search extends AppCompatActivity {
         if (errandList.isEmpty()) {
             Toast.makeText(this, "No tasks in your area", Toast.LENGTH_LONG).show();
             Snackbar snackbar = Snackbar
-                    .make(findViewById(R.id.search_layout), "No tasks found for term: "+term, Snackbar.LENGTH_INDEFINITE);
+                    .make(findViewById(R.id.search_layout), "No tasks found in a 20 mi radius for lat: "+lat +" long: " + lng, Snackbar.LENGTH_INDEFINITE);
 
             snackbar.show();
             return;
@@ -208,7 +148,7 @@ public class Search extends AppCompatActivity {
      *
      * @param userLocation Search of the user to query errands on
      */
-    private void updateUI(final Location userLocation) {
+    private void updateUI(final mLocation userLocation) {
         //TODO decide when to update
 
         //Global arraylist of errands
@@ -220,22 +160,83 @@ public class Search extends AppCompatActivity {
         //Query database for all tasks with creator id of this user
         final DatabaseReference myTasksRef = database.getReference("errands");
 
-        Query query = myTasksRef.orderByChild("title").equalTo(term);
-        query.addListenerForSingleValueEvent(new ValueEventListener() {
+        //GeoFire instance
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("geofire");
+        GeoFire geoFire = new GeoFire(ref);
+
+        // creates a new query around [37.7832, -122.4056] with a radius of 0.6 kilometers
+        //First we need to establish where the user is with lat and lng
+        double lat = userLocation.getLatitude();
+        double lng = userLocation.getLongitude();
+
+        //Now we need to set a radius of how far we need to look, in km
+        double radius = 50;
+
+        //Now we build a query with that
+        GeoQuery geoQuery = geoFire.queryAtLocation(new GeoLocation(lat, lng), radius);
+
+        //TODO Come up with a better plan than this
+        //This flag will be set with onGeoQueryReady
+        //But getting the last key may not be done since firebase is async
+        //So instead we have to set the flag in onGeoQueryReady, and then call it from the last onKeyEntered
+        final boolean[] isReady = {false};
+
+        //Now we need listeners for each type of event
+        //We're really only concerned with
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists()) {
-                    // dataSnapshot is the "issue" node with all children with id 0
-                    for (DataSnapshot errand : dataSnapshot.getChildren()) {
-                        errands.add(errand.getValue(TaskModel.class));
+            public void onKeyEntered(String key, GeoLocation location) {
+                Log.d(TAG, "Found one " + key);
+                //Query the firebase based on the key
+                Query queryRef = myTasksRef.orderByChild("taskId").equalTo(key);
+
+                queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Log.d(TAG, "Got it from the database");
+                        if (dataSnapshot.exists()) {
+                            Log.d(TAG, "Even added it!");
+                            // dataSnapshot is the "issue" node with all children with id 0
+                            for (DataSnapshot errandMap : dataSnapshot.getChildren()) {
+                                //Add the errand to the list
+                                TaskModel errand = errandMap.getValue(TaskModel.class);
+                                if (errand.status == 0) {
+                                    errands.add(errand);
+                                }
+                            }
+
+                            if (isReady[0]) {
+                                //Generate the keys when everything is done
+                                generateFeed(errands, userLocation);
+                            }
+                        }
                     }
-                }
-                generateFeed(errands, userLocation);
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        //Should not happen
+                        Toast.makeText(getApplicationContext(), "Error reading Errands from Firebase", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), "Error with firebase, contact help", Toast.LENGTH_LONG).show();
+            public void onKeyExited(String key) {
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+            }
+
+            //Gets called when all the keys are found
+            @Override
+            public void onGeoQueryReady() {
+                isReady[0] = true;
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+                Log.e(TAG, "Error a=with Geofire ref error: " + error);
             }
         });
     }

@@ -37,7 +37,7 @@
         <activity android:name=".CreateTask" />
         <activity android:name=".Login" />
         <activity android:name=".Task" />
-        <!--             BraintreeDirect required activity for Express Paypal Checkout integration -->
+        <!-- BraintreeDirect required activity for Express Paypal Checkout integration -->
         <activity
             android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
             android:launchMode="singleTask">
@@ -92,7 +92,7 @@
             android:name=".ApiContentProvider"
             android:authorities="keys"
             android:enabled="true"
-            android:exported="true"></provider>
+            android:exported="true" />
 
         <receiver
             android:name=".SearchReceiver"
@@ -104,10 +104,12 @@
         </receiver>
 
         <service
-            android:exported="true"
-            android:name=".BoundService"></service>
+            android:name=".BoundService"
+            android:exported="true" />
 
-        <activity android:name=".Search"></activity>
+        <activity android:name=".Search" />
+        <activity android:name=".LocationFeed"
+            android:exported="true"></activity>
     </application>
 
 </manifest>
