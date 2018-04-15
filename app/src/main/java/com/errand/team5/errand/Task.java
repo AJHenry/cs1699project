@@ -52,6 +52,7 @@ public class Task extends AppCompatActivity {
     private DatabaseReference thisErrand;
     private FirebaseAuth mAuth;
     private FirebaseUser user;
+    private boolean lock;
 
     private Context context;
         @Override
@@ -76,6 +77,7 @@ public class Task extends AppCompatActivity {
             db = FirebaseDatabase.getInstance().getReference();
             errandsTable = db.child("errands");
             testUserTable = db.child("testUsers");
+            lock = false;
 
             taskTitle = (TextView) findViewById(R.id.task_title);
             taskCompletionTime = (TextView) findViewById(R.id.task_completion_time);
@@ -104,7 +106,11 @@ public class Task extends AppCompatActivity {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     status = dataSnapshot.getValue(Integer.class);
-                    if(status != 0 && requestButton.isEnabled())
+                    if(lock)
+                    {
+                        requestButton.setEnabled(false);
+                    }
+                    else if(status != 0 && requestButton.isEnabled())
                     {
                         Toast.makeText(context, "Sorry, this task is no longer available :(", Toast.LENGTH_LONG).show();
                         requestButton.setEnabled(false);
@@ -121,28 +127,18 @@ public class Task extends AppCompatActivity {
                 }
             }); //this disables the request button if the errand is set into a non-requestable state while the user is viewing the page. also does the opposite.
 
-            /*
             thisErrand.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    creatorId = dataSnapshot.child("creatorId").getValue(String.class);
-                    DatabaseReference creatorRef = testUserTable.child("creatorId");
-                    if(creatorRef != null)
+                    String creatorId = dataSnapshot.child("creatorId").getValue(String.class);
+                    Log.d("debug", "creatorId = " + creatorId + "; uId = " + mAuth.getUid());
+                    if(creatorId.equals(mAuth.getUid()))
                     {
+                        requestButton.setEnabled(false);
+                        lock = true;
+
 
                     }
-                    else
-                    {
-                        Log.d("DEBUG", "CreatorRef is null for some reason.");
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });*/
-
 
 
             //set request button to disabled if the user status indicates they are already on a task
@@ -230,26 +226,61 @@ public class Task extends AppCompatActivity {
 
                 //load the notfications into the users notifications table
                 DatabaseReference creatorEntry = testUserTable.child(creatorId);
-                DatabaseReference userEntry = testUserTable.child(userId);
+                final DatabaseReference userEntry = testUserTable.child(userId);
 
                 DatabaseReference creatorNotificationsTable = creatorEntry.child("notifications");
                 DatabaseReference userNotificationTable = userEntry.child("notifications");
 
-                DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
-                DatabaseReference userNewNotificationRef = userNotificationTable.push();
+                final DatabaseReference creatorNewNotificationRef = creatorNotificationsTable.push();
+                final DatabaseReference userNewNotificationRef = userNotificationTable.child(creatorNewNotificationRef.getKey());
 
-                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, Notification.NEEDS_APPROVAL, Notification.OPEN);
-                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, Notification.PENDING_APPROVAL, Notification.OPEN);
 
-                creatorNewNotificationRef.setValue(newNotficationCreator);
-                userNewNotificationRef.setValue(newNotificationUser);
+                creatorEntry.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String cId = dataSnapshot.child("uid").getValue(String.class);
+                        String cPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
+                        String cDisplayName = dataSnapshot.child("displayName").getValue(String.class);
+                        String cEmail = dataSnapshot.child("email").getValue(String.class);
+                        final User creator = new User(cId, cPhotoUrl, cDisplayName, cEmail);
+                        userEntry.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                thisErrand.child("status").setValue(1);
-                requestButton.setEnabled(false);
-                Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(context, MainActivity.class);
-                //put any extras if needed
-                startActivity(intent);
+                                String rId = dataSnapshot.child("uid").getValue(String.class);
+                                String rPhotoUrl = dataSnapshot.child("photoUrl").getValue(String.class);
+                                String rDisplayName = dataSnapshot.child("displayName").getValue(String.class);
+                                String rEmail = dataSnapshot.child("email").getValue(String.class);
+                                final User requester = new User(rId, rPhotoUrl, rDisplayName, rEmail);
+
+                                Notification newNotficationCreator = new Notification(creatorNewNotificationRef.getKey(), "This needs approval.", id, requester, creator, Notification.NEEDS_APPROVAL, Notification.OPEN);
+                                Notification newNotificationUser = new Notification(userNewNotificationRef.getKey(), "Pending approval from creator.", id, requester, creator, Notification.PENDING_APPROVAL, Notification.OPEN);
+
+                                creatorNewNotificationRef.setValue(newNotficationCreator);
+                                userNewNotificationRef.setValue(newNotificationUser);
+
+                                thisErrand.child("status").setValue(1);
+                                requestButton.setEnabled(false);
+                                Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
+                                Intent intent = new Intent(context, MainActivity.class);
+                                //put any extras if needed
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
             }
 
             @Override
