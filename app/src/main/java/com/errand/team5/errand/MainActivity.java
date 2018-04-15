@@ -115,10 +115,10 @@ public class MainActivity extends AppCompatActivity
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 //Successfully create task
-                Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
             } else {
                 //Failure
-                Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == SIGN_IN) {
             fillUserUI(mAuth.getCurrentUser());
