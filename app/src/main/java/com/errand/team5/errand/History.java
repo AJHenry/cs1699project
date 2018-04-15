@@ -3,6 +3,7 @@ package com.errand.team5.errand;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,5 +66,15 @@ public class History extends Fragment {
                 Toast.makeText(getView().getContext(), "Clicked on "+position, Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        try {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Errand History");
+        }catch (NullPointerException e){
+
+        }
+        super.onResume();
     }
 }
