@@ -3,6 +3,8 @@ package com.errand.team5.errand;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -26,6 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.time.DayOfWeek;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
 
@@ -42,7 +47,20 @@ public class Task extends AppCompatActivity {
     private Button dropOffLocation;
     private Button requestButton;
     private ImageView profileImage;
+    private Button editTaskButton;
     private String id;
+    private boolean lock;
+
+    private String title = "";
+    private String time = "";
+    private String descriptor = "";
+    private double price = 0.0;
+    private long timeStamp = 0;
+    private String instructions = "";
+    private String locat = ""; // location
+    private String comments = "";
+    private double lon = 0.0; // longitude
+    private double lat = 0.0; // latitude
 
     private int status;
 
@@ -76,6 +94,7 @@ public class Task extends AppCompatActivity {
             db = FirebaseDatabase.getInstance().getReference();
             errandsTable = db.child("errands");
             testUserTable = db.child("testUsers");
+            lock = false;
 
             taskTitle = (TextView) findViewById(R.id.task_title);
             taskCompletionTime = (TextView) findViewById(R.id.task_completion_time);
@@ -86,14 +105,13 @@ public class Task extends AppCompatActivity {
             dropOffLocation = (Button) findViewById(R.id.task_drop_off_button);
             profileImage = (ImageView) findViewById(R.id.task_profile_image);
             requestButton = (Button) findViewById(R.id.button_request);
+            editTaskButton = (Button) findViewById(R.id.editTaskButton);
+            editTaskButton.setEnabled(false);
 
             //==============================================================
             //TODO: below is how I plan to implement requesting a task and some of the setup required in onCreate
             //use the "id" retrieved from intent to fill in the above fields
             thisErrand = errandsTable.child(id);
-
-            //TODO this is mohit's task
-
 
             //also use the id to retrieve the creator's userid from the entry in errands
                 //this is (-> errands -> <"id"> -> user -> uid) in the firebase
@@ -121,19 +139,28 @@ public class Task extends AppCompatActivity {
                 }
             }); //this disables the request button if the errand is set into a non-requestable state while the user is viewing the page. also does the opposite.
 
+            // edit task does not work at all, probably because I did not put in my credit card
+            // or paypal information. It was working perfectly fine before the paypal integration. -- Mohit
             /*
             thisErrand.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    creatorId = dataSnapshot.child("creatorId").getValue(String.class);
-                    DatabaseReference creatorRef = testUserTable.child("creatorId");
-                    if(creatorRef != null)
+                    String creatorId = dataSnapshot.child("creatorId").getValue(String.class);
+                    Log.d("debug", "creatorId = " + creatorId + "; uId = " + mAuth.getUid());
+                    if(creatorId.equals(mAuth.getUid()))
                     {
-
-                    }
-                    else
-                    {
-                        Log.d("DEBUG", "CreatorRef is null for some reason.");
+                        requestButton.setEnabled(false);
+                        editTaskButton.setEnabled(true);
+                        editTaskButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // starts the edit activity task
+                                Intent startEditing = new Intent(Task.this, editTask.class);
+                                startEditing.putExtra("idForTask", id);
+                                startActivity(startEditing);
+                            }
+                        });
+                        lock = true;
                     }
                 }
 
@@ -141,7 +168,7 @@ public class Task extends AppCompatActivity {
                 public void onCancelled(DatabaseError databaseError) {
 
                 }
-            });*/
+            }); */
 
 
 
@@ -172,6 +199,141 @@ public class Task extends AppCompatActivity {
                     onRequest();
                 }
             });
+
+            // Added a way to query from the database (Mohit)
+            // get the firebase reference
+            FirebaseDatabase fb = FirebaseDatabase.getInstance();
+            DatabaseReference table = fb.getReference("errands").child(id); // reference to specific taskID
+            // Now we want to query table multiple times
+
+            // gets the task title
+            DatabaseReference getTitle = table.child("title");
+            getTitle.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    title = (String) data.getValue();
+                    taskTitle.setText(title);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the task completion time
+            DatabaseReference getTime = table.child("timeToCompleteMins");
+            getTime.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    long time1 = (long) data.getValue();
+                    time = time1+"";
+                    taskCompletionTime.setText(time);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the task description
+            DatabaseReference getDescriptor = table.child("description");
+            getDescriptor.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    descriptor = (String) data.getValue();
+                    taskDescription.setText(descriptor);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the task price
+            DatabaseReference getPrice = table.child("baseCost");
+            getPrice.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    price = Double.parseDouble(data.getValue().toString());
+                    String price1 = price + "";
+                    taskPrice.setText(price1);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the timeStamp "posted x minutes ago" (calculates the x)
+            DatabaseReference getPublish = table.child("publishTime");
+            DatabaseReference getTimestamp = getPublish.child("time");
+            getTimestamp.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    timeStamp = (long) data.getValue();
+                    String timePost = getElapsedTime(timeStamp);
+                    taskTimestamp.setText(timePost);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the special instructions
+            DatabaseReference getInstructions = table.child("specialInstructions");
+            getInstructions.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    instructions = (String) data.getValue();
+                    taskSpecialInstructions.setText(instructions);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+
+            // gets the location's longitude and latitude
+            DatabaseReference getLocationAttrs = table.child("dropOffDestination");
+            DatabaseReference getLongitude = getLocationAttrs.child("longitude");
+            getLongitude.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    lon = Double.parseDouble(data.getValue().toString());
+                    Log.i("Longitude", "Here: " + lon);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+            DatabaseReference getLat = getLocationAttrs.child("latitude");
+            getLat.addValueEventListener(new ValueEventListener() {
+
+                public void onDataChange(DataSnapshot data) {
+                    lat = Double.parseDouble(data.getValue().toString());
+                    Log.i("Latitude", "Here: " + lat);
+                    String addy = getCompleteAddressString(lat, lon);
+                    Log.i("getCompleteAddress", "address = " + addy);
+                    dropOffLocation.setText(addy);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+
+            });
+            // Finished Querying from the database (Mohit)
+
+
         }
 
     @Override
@@ -210,6 +372,110 @@ public class Task extends AppCompatActivity {
             this.user = user;
         }
     }
+
+    // Added Helper Functions (Mohit)
+
+    public long[] printDifference(Date startDate, Date endDate){
+
+        //milliseconds
+        long different = endDate.getTime() - startDate.getTime();
+
+        System.out.println("startDate : " + startDate);
+        System.out.println("endDate : "+ endDate);
+        System.out.println("different : " + different);
+
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+
+        long elapsedDays = different / daysInMilli;
+        different = different % daysInMilli;
+
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+
+        long elapsedSeconds = different / secondsInMilli;
+
+        long [] arr = {elapsedDays, elapsedHours, elapsedMinutes, elapsedSeconds};
+        return arr;
+
+
+    }
+
+    private static final int SECOND_MILLIS = 1000;
+    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
+
+    private String getElapsedTime(long time) {
+        if (time < 1000000000000L) {
+            // if timestamp given in seconds, convert to millis
+            time *= 1000;
+        }
+
+        //TODO Fix issue with people submitting wrong timestamp
+        long now = System.currentTimeMillis();
+//        if (time > now || time <= 0) {
+//            Log.d(TAG, "Error in timestamp");
+//            Log.d(TAG, "Given: "+time);
+//            Log.d(TAG, "Actual: "+now);
+//            return "just now";
+//            //return null;
+//        }
+
+        // TODO: localize
+        final long diff = now - time;
+        if (diff < MINUTE_MILLIS) {
+            return "just now";
+        } else if (diff < 2 * MINUTE_MILLIS) {
+            return "a minute ago";
+        } else if (diff < 50 * MINUTE_MILLIS) {
+            return diff / MINUTE_MILLIS + " minutes ago";
+        } else if (diff < 90 * MINUTE_MILLIS) {
+            return "an hour ago";
+        } else if (diff < 24 * HOUR_MILLIS) {
+            return diff / HOUR_MILLIS + " hours ago";
+        } else if (diff < 48 * HOUR_MILLIS) {
+            return "yesterday";
+        } else {
+            return diff / DAY_MILLIS + " days ago";
+        }
+    }
+
+
+    // taken from the link:
+    // https://stackoverflow.com/questions/9409195/how-to-get-complete-address-from-latitude-and-longitude
+    // Gets the complete address by using the latitude and the longitude
+    // of a certain location.
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder("");
+
+                for (int i = 0; i <= returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                Log.w("My Current loction addy", strReturnedAddress.toString());
+            } else {
+                Log.w("My Current loction addy", "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.w("My Current loction addy", "Canont get Address!");
+        }
+        return strAdd;
+    }
+
+    // Ended Adding Helper Function(Mohit)
 
     private void onRequest()
     {
