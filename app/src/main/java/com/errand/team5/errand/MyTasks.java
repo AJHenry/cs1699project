@@ -51,9 +51,8 @@ public class MyTasks extends Fragment {
         //Components
         spinner = (ProgressBar) getActivity().findViewById(R.id.main_loading);
         feed = (ListView) getActivity().findViewById(R.id.my_task_feed);
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        // ...
+
+        //Firebase Auth
         mAuth = FirebaseAuth.getInstance();
     }
 
@@ -112,6 +111,9 @@ public class MyTasks extends Fragment {
                     generateFeed(errands);
                 }else{
                     //TODO no data found for the user
+                    // just simply turn off the spinner.
+                    spinner.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "No Tasks Made. Create a task", Toast.LENGTH_LONG).show();
                 }
 
             }

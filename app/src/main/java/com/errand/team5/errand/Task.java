@@ -139,13 +139,6 @@ public class Task extends AppCompatActivity {
 
 
                     }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
 
 
             //set request button to disabled if the user status indicates they are already on a task
@@ -321,6 +314,4 @@ public class Task extends AppCompatActivity {
                             //          object. But I'm not entirely sure that is possible.
 
     }
-
-
 }

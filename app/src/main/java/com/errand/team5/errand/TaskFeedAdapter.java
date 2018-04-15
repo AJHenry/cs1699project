@@ -3,6 +3,7 @@ package com.errand.team5.errand;
 import android.app.Dialog;
 import android.content.Context;
 import android.location.Location;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,7 +53,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
         ImageView profileImage;
     }
 
-    public TaskFeedAdapter(ArrayList<TaskModel> data, Context context, Location currentLocation) {
+    protected TaskFeedAdapter(ArrayList<TaskModel> data, Context context, Location currentLocation) {
         super(context, R.layout.listview_feed, data);
         this.dataSet = data;
         this.mContext = context;
@@ -60,7 +61,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         // Get the data item for this position
         TaskModel task = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
@@ -133,8 +134,8 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
     }
 
 
-    public void showProfile() {
-        final Dialog dialog = new Dialog(getContext());
+    private void showProfile() {
+        Dialog dialog = new Dialog(getContext());
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.fragment_profile);
@@ -145,8 +146,6 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
                 .load(imgurl)
                 .apply(RequestOptions.circleCropTransform())
                 .into(img);
-
-        //Do processing here
 
         dialog.show();
 
@@ -159,7 +158,7 @@ public class TaskFeedAdapter extends ArrayAdapter<TaskModel> {
     private static final int DAY_MILLIS = 24 * HOUR_MILLIS;
 
 
-    public String getTimeAgo(long time) {
+    private String getTimeAgo(long time) {
         if (time < 1000000000000L) {
             // if timestamp given in seconds, convert to millis
             time *= 1000;
