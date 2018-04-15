@@ -194,8 +194,8 @@ public class NotificationAdapter extends ArrayAdapter<Notification>{
         String creatorID = noti.getCreator().getUid();
         String requesterID = noti.getRequester().getUid();
         DatabaseReference db = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference creatorNotiRef = db.child("testUsers").child(creatorID).child("notifications").child(nId);
-        DatabaseReference requesterNotiRef = db.child("testUsers").child(requesterID).child("notifications").child(nId);
+        DatabaseReference creatorNotiRef = db.child("users").child(creatorID).child("notifications").child(nId);
+        DatabaseReference requesterNotiRef = db.child("users").child(requesterID).child("notifications").child(nId);
         DatabaseReference taskRef = db.child("errands").child(noti.taskID);
 
 
