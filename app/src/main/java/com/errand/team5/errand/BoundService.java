@@ -10,6 +10,9 @@ import android.util.Log;
 import android.widget.Chronometer;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
 import io.nlopez.smartlocation.OnLocationUpdatedListener;
 import io.nlopez.smartlocation.SmartLocation;
 import io.nlopez.smartlocation.location.config.LocationAccuracy;
@@ -36,9 +39,13 @@ public class BoundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e(TAG, "Called onStartCommand");
-        String term = intent.getStringExtra("SearchTerm");
-        String apiKey = intent.getStringExtra("ApiKey");
-        String sort = intent.getStringExtra("Sort");
+
+        String taskData = intent.getStringExtra("taskData");
+        JsonParser parser = new JsonParser();
+        JsonObject obj = parser.parse(taskData).getAsJsonObject();
+        String apiKey = obj.get("apiKey").getAsString();
+        String term = obj.get("term").getAsString();
+        String sort = obj.get("sort").getAsString();
 
         Log.e(TAG, "SearchTerm: "+term);
 
