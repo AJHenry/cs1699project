@@ -23,9 +23,9 @@ public class TaskModel implements Serializable {
 
     //Status of errand
     //0 - new, unrequested
-    //1 - in progress
-    //2 - completed
-    //3 - cancelled
+    //1 - requested
+    //2 - in progress
+    //3 - completed/cancelled
     int status;
 
     //Time it was published
