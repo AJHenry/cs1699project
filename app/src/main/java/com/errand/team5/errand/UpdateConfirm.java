@@ -49,10 +49,14 @@ public class UpdateConfirm extends AppCompatActivity {
     private String taskID;
     private double fees;
     private double subtotal;
+    private String addr;
+    private boolean del;
 
     //Save original location?
-    TaskModel origTask;
-    TaskModel newErrand;
+    private TaskModel origTask;
+    private TaskModel newErrand;
+    private double lat = 0.0;
+    private double lng = 0.0;
 
     final boolean toSend = false;
 
@@ -74,20 +78,20 @@ public class UpdateConfirm extends AppCompatActivity {
         checkLogin(fUser);
 
         extras = getIntent().getExtras();
-        boolean delete = extras.getBoolean("delete", false);
         TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
                 //toSend = true;
+                del = extras.getBoolean("delete", false);
                 taskID = extras.getString("taskID");
-                showDialog(taskData, delete);
+                showDialog(taskData);
             }
         }catch (NullPointerException e){
             Log.wtf(TAG, "ERROR GETTING taskData info, please contact help");
         }
     }
 
-    public void showDialog(TaskData taskData, boolean delete){
+    public void showDialog(TaskData taskData){
         final Dialog dialog = new Dialog(this);
         //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
@@ -96,26 +100,29 @@ public class UpdateConfirm extends AppCompatActivity {
         //merge updated info with original
         mergeInfo(taskData);
 
-        TextView baseCost = (TextView) dialog.findViewById(R.id.payment_base_cost);
-        TextView feeCost = (TextView) dialog.findViewById(R.id.payment_fees);
+        TextView baseCost = (TextView) dialog.findViewById(R.id.uc_payment_base_cost);
+        TextView feeCost = (TextView) dialog.findViewById(R.id.uc_payment_fees);
 
-        TextView subtotalText = (TextView) dialog.findViewById(R.id.payment_subtotal);
+        TextView subtotalText = (TextView) dialog.findViewById(R.id.uc_payment_subtotal);
 
         TextView specialInstructionsText = (TextView) dialog.findViewById(R.id.update_confirm_special_instructions);
-        specialInstructionsText.setText(specialInstructions);
+        specialInstructionsText.setText(newErrand.getSpecialInstructions());
 
         NumberFormat format = NumberFormat.getCurrencyInstance();
 
         subtotalText.setText(format.format(subtotal));
-        baseCost.setText(format.format(basePrice));
+        baseCost.setText(format.format(newErrand.getBaseCost()));
         feeCost.setText(format.format(fees));
 
         TextView update_confirmTitle = (TextView) dialog.findViewById(R.id.update_confirm_title);
-        update_confirmTitle.setText(title);
+        update_confirmTitle.setText(newErrand.getTitle());
         TextView update_confirmDescription = (TextView) dialog.findViewById(R.id.update_confirm_description);
-        update_confirmDescription.setText(description);
+        update_confirmDescription.setText(newErrand.getDescription());
         TextView update_confirmDropOffAddress = (TextView) dialog.findViewById(R.id.update_confirm_drop_off);
         update_confirmDropOffAddress.setText(addr);
+
+        Log.wtf(TAG, "Reset fields in dialog");
+
 
         /*
         TextView update_confirmErrandAddress = (TextView) dialog.findViewById(R.id.update_confirm_errand);
@@ -133,28 +140,18 @@ public class UpdateConfirm extends AppCompatActivity {
                 //Get payment first
                 //Then add to database
 
-                //Create a new Model
-                TaskModel createdErrand = new TaskModel();
-                //createdErrand.setDropOffDestination(dropOffMLocation);
-                createdErrand.setBaseCost(basePrice);
-                createdErrand.setCategory(0);
-                createdErrand.setDescription(description);
-                createdErrand.setStatus(0);
-                createdErrand.setSpecialInstructions(specialInstructions);
-                createdErrand.setPaymentCost(fees);
-                createdErrand.setTitle(title);
-                createdErrand.setTimeToCompleteMins(timeToComplete);
-                createdErrand.setUser(new User(user.getUid(), user.getPhotoUrl().toString(), user.getDisplayName(), user.getEmail()));
+                newErrand.setUser(new User(user.getUid(), user.getPhotoUrl().toString(), user.getDisplayName(), user.getEmail()));
 
                 //Pass it to database
-                if(updateTaskEntry(createdErrand)){
+                if(updateTaskEntry(newErrand, del)){
                     //Display success to user
-                    Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Successfully updated task info", Toast.LENGTH_LONG).show();
 
                     //Need to set the result to ok
                     if (!toSend){
                         Intent returnIntent = new Intent();
                         setResult(RESULT_OK, returnIntent);
+                        dialog.dismiss();
                         finish();
                     }
                     else {
@@ -163,7 +160,7 @@ public class UpdateConfirm extends AppCompatActivity {
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
                         Bundle extras = new Bundle();
                         extras.putInt("whichTrig",4);
-                        extras.putString("store", title);
+                        extras.putString("store", newErrand.getTitle());
 
                         if (launchIntent != null) {
                             launchIntent.putExtras(extras);
@@ -214,10 +211,6 @@ public class UpdateConfirm extends AppCompatActivity {
         newErrand.setCreatorId(user.getUid());
         newErrand.setPublishTime(new mTimestamp());
 
-        //re-use old addresses
-        double lat = origTask.getDropOffDestination().getLatitude();
-        double lng = origTask.getDropOffDestination().getLongitude();
-
         //Add to firebase
         ref.child(taskID).setValue(newErrand);
 
@@ -256,6 +249,10 @@ public class UpdateConfirm extends AppCompatActivity {
     }
 
     private void mergeInfo(TaskData taskData){
+
+        newErrand = new TaskModel();
+
+        Log.wtf(TAG, "Merging original and updated task info");
         //get original task info
         Query q = ref.child(taskID);
         q.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -272,8 +269,11 @@ public class UpdateConfirm extends AppCompatActivity {
                                          }
         );
 
+        Log.wtf(TAG, "Got original task model from db");
+
+
         //get fields from taskData, replacing with original if null
-        String si = setSpecialInstructions(taskData.getSpecialInstructions());
+        String si = taskData.getSpecialInstructions();
         if(si.length() == 0){
             si = origTask.getSpecialInstructions();
         }
@@ -287,17 +287,32 @@ public class UpdateConfirm extends AppCompatActivity {
         }
         String description = taskData.getDescription();
         if(description.length() == 0){
-
+            description = origTask.getDescription();
         }
-        final String address = taskData.getAddress();
-        final String address2 = taskData.getAddress2();
-        final String city = taskData.getCity();
-        final String state = taskData.getState();
-        final String zip = taskData.getZip();
-        final String addr = address + ", " + address2 + ", " + city + ", " + state + " " + zip;
-        final int timeToComplete = taskData.getTimeToComplete();
+        //TODO: force team 4 to send Place object, or drop into Place Picker?
+        String address = taskData.getAddress();
+        String address2 = taskData.getAddress2();
+        String city = taskData.getCity();
+        String state = taskData.getState();
+        String zip = taskData.getZip();
+        addr = address + ", " + address2 + ", " + city + ", " + state + " " + zip;
+        int timeToComplete = taskData.getTimeToComplete();
+        if(timeToComplete < 0){
+            timeToComplete = origTask.getTimeToCompleteMins();
+        }
 
-        final double fees = basePrice * 0.20;
-        final double subtotal = fees + basePrice;
+        //lat = origTask.getDropOffDestination().getLatitude();
+        //lng = origTask.getDropOffDestination().getLongitude();
+
+        fees = basePrice * 0.20;
+        subtotal = fees + basePrice;
+
+        newErrand.setSpecialInstructions(si);
+        newErrand.setBaseCost(basePrice);
+        newErrand.setDescription(description);
+        newErrand.setTitle(title);
+
+        Log.wtf(TAG, "Merge complete");
+
     }
 }
