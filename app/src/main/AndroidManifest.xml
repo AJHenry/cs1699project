@@ -37,6 +37,8 @@
         <activity android:name=".CreateTask" />
         <activity android:name=".Login" />
         <activity android:name=".Task" />
+        <activity android:name=".UpdateTask" />
+        <activity android:name=".UpdateConfirm" />
         <!--             BraintreeDirect required activity for Express Paypal Checkout integration -->
         <activity
             android:name="com.braintreepayments.api.BraintreeBrowserSwitchActivity"
@@ -94,6 +96,15 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="com.errand.team5.errand.SearchReceiver" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".UpdateReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.errand.team5.errand.UpdateReceiver" />
             </intent-filter>
         </receiver>
 

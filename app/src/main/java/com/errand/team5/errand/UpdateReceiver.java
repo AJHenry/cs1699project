@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 /**
  * TODO API Trigger
  *
@@ -15,30 +17,24 @@ import android.util.Log;
 
 public class UpdateReceiver extends BroadcastReceiver {
 
+    final String TAG = "UpdateReceiver class";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.e(TAG, "Broadcast Received");
+        Log.e(TAG, "Broadcast Received -- UPDATE TASK");
 
-        String apiKey = intent.getStringExtra("ApiKey");
-        String taskID = intent.getStringExtra("TaskID");
-        String userID = intent.getStringExtra("UserID");
-        String title = intent.getStringExtra("Title");
-        String type = intent.getStringExtra("Type");
-        String description = intent.getStringExtra("Description");
-        String address = intent.getStringExtra("Address");
-        String address2 = intent.getStringExtra("Address2");
-        String city = intent.getStringExtra("City");
-        String state = intent.get
-
-        String term = intent.getStringExtra("SearchTerm");
-        String apiKey = intent.getStringExtra("ApiKey");
-        String sort = intent.getStringExtra("Sort");
+        // Get all fields from broadcast
+        Gson gson = new Gson();
+        String taskDataStr = intent.getStringExtra("taskData");
+        boolean delete = intent.getBooleanExtra("delete", false);
+        TaskData taskData = gson.fromJson(taskDataStr, TaskData.class);
 
         // Send to Create Task activity
-        Intent searchIntent = new Intent(context, Search.class);
-        searchIntent.putExtra("SearchTerm", term);
-        searchIntent.putExtra("ApiKey", apiKey);
-        searchIntent.putExtra("Sort", sort);
-        context.startActivity(searchIntent);
+        Intent updateIntent = new Intent(context, UpdateTask.class);
+        updateIntent.putExtra("taskData", taskData);
+        updateIntent.putExtra("delete", delete);
+        updateIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        context.startActivity(updateIntent);
     }
 }
