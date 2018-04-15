@@ -38,6 +38,10 @@ public class UpdateTask extends AppCompatActivity {
 
     //Save task info
     private TaskData updatedTaskInfo;
+    private String taskID;
+
+    //delete or no
+    private boolean delete = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -53,10 +57,18 @@ public class UpdateTask extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         if(requestCode == CONFIRM_UPDATE){
             if(resultCode == RESULT_OK){
-                //overwrite DB with new task (only defined fields)
+                if(delete){
+                    Toast.makeText(this, "entry deleted", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(this, "changes saved", Toast.LENGTH_SHORT).show();
+                }
             }
             else{
-                Toast.makeText(this, "Please make your changes here and submit", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please make your changes and submit", Toast.LENGTH_LONG).show();
+                Intent createIntent = new Intent(this, CreateTask.class);
+                createIntent.putExtra("taskData", updatedTaskInfo);
+                startActivity(createIntent);
             }
         }
     }
@@ -70,12 +82,14 @@ public class UpdateTask extends AppCompatActivity {
         // unpack UpdateReceiver's data
         Intent intent = getIntent();
         final Bundle extras = intent.getExtras();
-        final boolean delete = intent.getBooleanExtra("delete", false);
+        delete = intent.getBooleanExtra("delete", false);
 
         // Get all fields from UpdateReceiver's data
         final TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
+                //save task data
+                updatedTaskInfo = taskData;
                 //Query DB for a matching task (just check title and user ID)
                 final String title = taskData.getTitle();
                 Log.wtf(DEBUG, "Task title from bundle: " + title);
@@ -88,12 +102,15 @@ public class UpdateTask extends AppCompatActivity {
                         boolean matchFound = false;
                         for(DataSnapshot ds: dataSnapshot.getChildren()){
                             TaskModel errand = ds.getValue(TaskModel.class);
+                            String taskKey = ds.getKey();
                             Log.wtf(DEBUG, "Looping - task title from DB: " + errand.getTitle());
                             if(errand.getTitle().equals(title)){
-                                // we have a match - send bundle along to UpdateConfirm,
+                                // we have a match - send bundle along to UpdateConfirm
+                                taskID = taskKey;
                                 Intent confirmIntent = new Intent(getApplicationContext(), UpdateConfirm.class);
                                 confirmIntent.putExtra("taskData", taskData);
                                 confirmIntent.putExtra("delete", delete);
+                                confirmIntent.putExtra("taskID", taskKey);
                                 startActivityForResult(confirmIntent, CONFIRM_UPDATE);
                                 matchFound = true;
                                 break;
