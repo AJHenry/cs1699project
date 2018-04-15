@@ -39,6 +39,8 @@ public class UpdateTask extends AppCompatActivity {
     //Save task info
     private TaskData updatedTaskInfo;
     private String taskID;
+    private boolean match;
+    private boolean alreadyRead = false;
 
     //delete or no
     private boolean delete = false;
@@ -51,6 +53,7 @@ public class UpdateTask extends AppCompatActivity {
         // get current Firebase instances
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseDatabase.getInstance();
+        match = false;
     }
 
     @Override
@@ -63,6 +66,9 @@ public class UpdateTask extends AppCompatActivity {
                 else{
                     Toast.makeText(this, "changes saved", Toast.LENGTH_SHORT).show();
                 }
+                Intent intent = new Intent(this, MainActivity.class);
+                startActivity(intent);
+
             }
             else{
                 Toast.makeText(this, "Please make your changes and submit", Toast.LENGTH_LONG).show();
@@ -99,29 +105,33 @@ public class UpdateTask extends AppCompatActivity {
                 userTasks.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        boolean matchFound = false;
-                        for(DataSnapshot ds: dataSnapshot.getChildren()){
-                            TaskModel errand = ds.getValue(TaskModel.class);
-                            String taskKey = ds.getKey();
-                            Log.wtf(DEBUG, "Looping - task title from DB: " + errand.getTitle());
-                            if(errand.getTitle().equals(title)){
-                                // we have a match - send bundle along to UpdateConfirm
-                                taskID = taskKey;
+                        if(!alreadyRead) {
+                            for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                TaskModel errand = ds.getValue(TaskModel.class);
+                                String taskKey = ds.getKey();
+                                Log.wtf(DEBUG, "Looping - task title from DB: " + errand.getTitle());
+                                if (errand.getTitle().equals(title)) {
+                                    // we have a match - send bundle along to UpdateConfirm
+                                    Log.wtf(DEBUG, "Found a match: " + errand.getTitle());
+                                    taskID = taskKey;
+                                    match = true;
+                                    alreadyRead = true;
+                                    break;
+                                }
+                            }
+                            if (match) {
                                 Intent confirmIntent = new Intent(getApplicationContext(), UpdateConfirm.class);
                                 confirmIntent.putExtra("taskData", taskData);
                                 confirmIntent.putExtra("delete", delete);
-                                confirmIntent.putExtra("taskID", taskKey);
+                                confirmIntent.putExtra("taskID", taskID);
                                 startActivityForResult(confirmIntent, CONFIRM_UPDATE);
-                                matchFound = true;
-                                break;
+                            } else {
+                                //no matching task - send user to CreateTask and populate fields
+                                Toast.makeText(getApplicationContext(), "Didn't find matching task", Toast.LENGTH_SHORT).show();
+                                Intent createIntent = new Intent(getApplicationContext(), CreateTask.class);
+                                createIntent.putExtra("taskData", taskData);
+                                startActivity(createIntent);
                             }
-                        }
-                        if(!matchFound){
-                            //no matching task - send user to CreateTask and populate fields
-                            Toast.makeText(getApplicationContext(), "Didn't find matching task", Toast.LENGTH_SHORT).show();
-                            Intent createIntent = new Intent(getApplicationContext(), CreateTask.class);
-                            createIntent.putExtra("taskData", taskData);
-                            startActivity(createIntent);
                         }
                     }
 
@@ -132,6 +142,7 @@ public class UpdateTask extends AppCompatActivity {
                     }
                 });
 
+                //either have user confirm changes, or send them to CreateTask
             }
         }catch (NullPointerException e) {
             Log.wtf(TAG, "ERROR GETTING taskData info, please contact help");
