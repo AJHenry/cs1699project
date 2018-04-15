@@ -88,6 +88,7 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".Notifications"></activity>
         <provider
             android:name=".ApiContentProvider"
             android:authorities="keys"
