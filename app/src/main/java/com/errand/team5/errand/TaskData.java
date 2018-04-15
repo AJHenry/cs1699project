@@ -27,8 +27,18 @@ public class TaskData implements Serializable {
     private String city;
     private String state;
     private String zip;
-    private int price;
+    private long price;
     private String specialInstructions;
+
+    private mLocation dropOffLocation;
+
+    public mLocation getDropOffLocation(){
+        return dropOffLocation;
+    }
+
+    public void setDropOffLocation(mLocation dropOffLocation){
+        this.dropOffLocation = dropOffLocation;
+    }
 
     public TaskData(){};
 
@@ -104,11 +114,11 @@ public class TaskData implements Serializable {
         this.zip = zip;
     }
 
-    public int getPrice() {
+    public long getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(long price) {
         this.price = price;
     }
 
