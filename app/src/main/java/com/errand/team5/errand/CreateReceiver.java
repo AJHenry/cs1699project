@@ -3,6 +3,7 @@ package com.errand.team5.errand;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ public class CreateReceiver extends BroadcastReceiver {
         // Send to Create Task activity
         Intent createIntent = new Intent(context, CreateTask.class);
         createIntent.putExtra("taskData", taskData);
+        createIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(createIntent);
     }
 }

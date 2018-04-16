@@ -1,7 +1,9 @@
 package com.errand.team5.errand;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.net.ConnectivityManager;
@@ -65,11 +67,18 @@ public class MainActivity extends AppCompatActivity
     //The request code for creating a task
     static final int CREATE_TASK_REQUEST = 1;
 
-    //The result code for loggin in
+    //The result code for logging in
     private final int SIGN_IN = 10101;
 
     //The request code for location permissions
     private final int LOCATION_PERMISSION = 99;
+
+    //Broadcast receivers
+    /*
+    private BroadcastReceiver createReceiver;
+    private BroadcastReceiver searchReceiver;
+    private BroadcastReceiver updateReceiver;
+*/
 
     //Debugging
     private final String TAG = "MainActivity";
@@ -111,10 +120,10 @@ public class MainActivity extends AppCompatActivity
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 //Successfully create task
-                Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result turned ok, update feed", Toast.LENGTH_LONG).show();
             } else {
                 //Failure
-                Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
+                //Toast.makeText(this, "Result failed", Toast.LENGTH_LONG).show();
             }
         } else if (requestCode == SIGN_IN) {
             fillUserUI(mAuth.getCurrentUser());
@@ -129,7 +138,7 @@ public class MainActivity extends AppCompatActivity
         //Toolbar options
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Task Feed");
+        getSupportActionBar().setTitle("Home");
 
         //Create Button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.create_task);
@@ -180,6 +189,13 @@ public class MainActivity extends AppCompatActivity
         }
 
         checkPermissions();
+
+        //Set up broadcast receivers
+        /*
+        createReceiver = new CreateReceiver();
+        searchReceiver = new SearchReceiver();
+        updateReceiver = new UpdateReceiver();
+        */
     }
 
     private void updateUI() {
@@ -232,6 +248,12 @@ public class MainActivity extends AppCompatActivity
         checkLogin(currentUser);
     }
 
+    @Override
+    public void onStop(){
+
+        super.onStop();
+    }
+
     //Fills in the user name and email and picture
     private void fillUserUI(FirebaseUser currentUser) {
         //Set the email and name in the drawer
@@ -265,7 +287,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             this.user = user;
             accountReady = true;
-            Log.d(TAG, "Acount ready = " +accountReady);
+            Log.d(TAG, "Account ready = " +accountReady);
             fillUserUI(user);
         }
     }
@@ -282,7 +304,9 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        return false;
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
     }
 
     @Override
@@ -293,8 +317,10 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_notis) {
+            Intent intent = new Intent(this, Notifications.class);
+            startActivity(intent);
+            //return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -318,8 +344,6 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = History.class;
         } else if (id == R.id.nav_account) {
             fragmentClass = Account.class;
-        } else if (id == R.id.nav_settings) {
-            fragmentClass = Settings.class;
         }
 
         try {
@@ -371,7 +395,7 @@ public class MainActivity extends AppCompatActivity
                 } else {
 
                     Snackbar snackbar = Snackbar
-                            .make(findViewById(R.id.main_layout), "Location permissions needed to use this app", Snackbar.LENGTH_INDEFINITE)
+                            .make(findViewById(R.id.main_layout), "Search permissions needed to use this app", Snackbar.LENGTH_INDEFINITE)
                             .setAction("RETRY", new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
@@ -382,9 +406,6 @@ public class MainActivity extends AppCompatActivity
                 }
                 return;
             }
-
-            // other 'case' lines to check for other
-            // permissions this app might request.
         }
     }
 
@@ -417,7 +438,7 @@ public class MainActivity extends AppCompatActivity
                         Log.d(TAG, "Lon: " + lastKnownLocation.getLongitude() + " Lat: " + lastKnownLocation.getLatitude());
                         //mLocation is ready to be used
                         locationReady = true;
-                        Log.d(TAG, "Location ready = " +locationReady);
+                        Log.d(TAG, "Search ready = " +locationReady);
                         updateUI();
                     }
                 });

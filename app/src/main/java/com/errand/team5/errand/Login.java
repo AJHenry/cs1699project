@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
         //Firebase
         db = FirebaseDatabase.getInstance().getReference();
         userTable = db.child("users");
-        testUserTable = db.child("testUsers"); //DEBUG
+        testUserTable = db.child("users"); //DEBUG
         mAuth = FirebaseAuth.getInstance();
 
         // Set the dimensions of the sign-in button.
