@@ -128,47 +128,6 @@ public class Feed extends Fragment {
         super.onPause();
     }
 
-    @Override
-    public void onStart(){
-        super.onStart();
-
-        //Start the broadcast receiver
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("com.errand.team5.errand.SEND_SEARCH");
-
-        //Create a new receiver
-        receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                //TODO query firebase for search term
-                String term = intent.getStringExtra("SearchTerm");
-                if(!(term.isEmpty())){
-                    //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
-                    Snackbar snackbar = Snackbar
-                            .make(getActivity().findViewById(R.id.main_layout), "Received term from Service, term: "+term, Snackbar.LENGTH_INDEFINITE);
-                    snackbar.show();
-                }else{
-                    Toast.makeText(getContext(), "Search term provided was empty", Toast.LENGTH_LONG).show();
-                    Snackbar snackbar = Snackbar
-                            .make(getActivity().findViewById(R.id.main_layout), "Search term provided was empty", Snackbar.LENGTH_INDEFINITE);
-                    snackbar.show();
-                }
-            }
-        };
-
-        //Register it
-        getActivity().registerReceiver(receiver, filter);
-    }
-
-    @Override
-    public void onStop(){
-        //Unregister the receiver
-        if (receiver != null) {
-            getActivity().unregisterReceiver(receiver);
-            receiver = null;
-        }
-        super.onStop();
-    }
 
     /**
      * mLocation Service
@@ -223,8 +182,8 @@ public class Feed extends Fragment {
         //TODO display a text with no tasks available in your area
         if (errandList.isEmpty()) {
             //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
-            //Snackbar snackbar = Snackbar
-                    //.make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+            Snackbar snackbar = Snackbar
+                    .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
                     /*
                     .setAction("RETRY", new View.OnClickListener() {
                         @Override
@@ -232,7 +191,7 @@ public class Feed extends Fragment {
                         }
                     });
                     */
-            //snackbar.show();
+            snackbar.show();
         }
 
         //Get rid of the spinner
