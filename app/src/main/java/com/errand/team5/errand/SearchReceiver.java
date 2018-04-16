@@ -22,6 +22,7 @@ public class SearchReceiver extends BroadcastReceiver {
         searchIntent.putExtra("SearchTerm", term);
         searchIntent.putExtra("ApiKey", apiKey);
         searchIntent.putExtra("Sort", sort);
+        searchIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(searchIntent);
     }
 }
