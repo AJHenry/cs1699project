@@ -62,6 +62,7 @@ public class UpdateTask extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CONFIRM_UPDATE){
             if(resultCode == RESULT_OK){
                 //confirmed updates - done
@@ -75,7 +76,7 @@ public class UpdateTask extends AppCompatActivity {
                 startActivity(intent);
 
             }
-            else{
+            else if(resultCode == RESULT_CANCELED){
                 //did not confirm updates - drop to CreateTask to edit
                 Toast.makeText(this, "Please make your desired changes", Toast.LENGTH_LONG).show();
                 Intent createIntent = new Intent(this, CreateTask.class);

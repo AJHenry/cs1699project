@@ -283,6 +283,7 @@ public class CreateTask extends AppCompatActivity {
      * @param data
      */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         //Drop off location place picker
         if (requestCode == DROP_OFF_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
