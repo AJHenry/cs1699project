@@ -332,8 +332,6 @@ public class MainActivity extends AppCompatActivity
             fragmentClass = History.class;
         } else if (id == R.id.nav_account) {
             fragmentClass = Account.class;
-        } else if (id == R.id.nav_settings) {
-            fragmentClass = Settings.class;
         }
 
         try {
