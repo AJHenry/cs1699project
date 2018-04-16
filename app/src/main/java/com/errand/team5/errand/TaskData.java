@@ -32,6 +32,8 @@ public class TaskData implements Serializable {
 
     private mLocation dropOffLocation;
 
+    public TaskData(){}
+
     public mLocation getDropOffLocation(){
         return dropOffLocation;
     }
@@ -39,8 +41,6 @@ public class TaskData implements Serializable {
     public void setDropOffLocation(mLocation dropOffLocation){
         this.dropOffLocation = dropOffLocation;
     }
-
-    public TaskData(){}
 
     public String getApiKey() {
         return apiKey;

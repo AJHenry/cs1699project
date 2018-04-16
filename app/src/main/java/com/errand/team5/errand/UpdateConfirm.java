@@ -73,8 +73,27 @@ public class UpdateConfirm extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume(){
+        super.onResume();
+        extras = getIntent().getExtras();
+        TaskData taskData;
+        try {
+            if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
+                //TODO: uncomment this for demo
+                //toSend = true;
+                del = extras.getBoolean("delete", false);
+                taskID = extras.getString("taskID");
+                showDialog(taskData);
+            }
+        }catch (NullPointerException e){
+            Log.wtf(TAG, "ERROR GETTING taskData info, please contact help");
+        }
+    }
+
+    @Override
     public void onStart(){
         super.onStart();
+        Log.wtf(TAG, "Starting UpdateConfirm");
         FirebaseUser fUser = mAuth.getCurrentUser();
         checkLogin(fUser);
 
@@ -153,7 +172,7 @@ public class UpdateConfirm extends AppCompatActivity {
                     if (!toSend){
                         Intent returnIntent = new Intent();
                         setResult(RESULT_OK, returnIntent);
-                        dialog.dismiss();
+                        //dialog.dismiss();
                         finish();
                     }
                     else {
@@ -163,6 +182,8 @@ public class UpdateConfirm extends AppCompatActivity {
                         Bundle extras = new Bundle();
                         extras.putInt("whichTrig",4);
                         extras.putString("store", newErrand.getTitle());
+                        extras.putDouble("lat", lat);
+                        extras.putDouble("lng", lng);
 
                         if (launchIntent != null) {
                             launchIntent.putExtras(extras);
@@ -184,7 +205,7 @@ public class UpdateConfirm extends AppCompatActivity {
 
                 Intent intent = new Intent();
                 setResult(RESULT_CANCELED, intent);
-                dialog.dismiss();
+                //dialog.dismiss();
                 finish();
             }
         });
@@ -277,11 +298,11 @@ public class UpdateConfirm extends AppCompatActivity {
 
         //get fields from taskData, replacing with original if null
         String si = taskData.getSpecialInstructions();
-        if(si.length() == 0){
+        if(si == null){
             si = origTask.getSpecialInstructions();
         }
         String title = taskData.getTitle();
-        if(title.length() == 0){
+        if(title == null){
             title = origTask.getTitle();
         }
         double basePrice = taskData.getPrice();
@@ -289,7 +310,7 @@ public class UpdateConfirm extends AppCompatActivity {
             basePrice = origTask.getBaseCost();
         }
         String description = taskData.getDescription();
-        if(description.length() == 0){
+        if(description == null){
             description = origTask.getDescription();
         }
         //TODO: force team 4 to send Place object, or drop into Place Picker?
@@ -316,6 +337,8 @@ public class UpdateConfirm extends AppCompatActivity {
         newErrand.setBaseCost(basePrice);
         newErrand.setDescription(description);
         newErrand.setTitle(title);
+        newErrand.setTimeToCompleteMins(timeToComplete);
+
 
         Log.wtf(TAG, "Merge complete");
 
