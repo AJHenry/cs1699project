@@ -282,7 +282,7 @@ public class UpdateConfirm extends AppCompatActivity {
         if(title.length() == 0){
             title = origTask.getTitle();
         }
-        long basePrice = taskData.getPrice();
+        double basePrice = taskData.getPrice();
         if(basePrice < 0){
             basePrice = origTask.getBaseCost();
         }

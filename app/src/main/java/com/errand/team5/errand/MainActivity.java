@@ -74,10 +74,11 @@ public class MainActivity extends AppCompatActivity
     private final int LOCATION_PERMISSION = 99;
 
     //Broadcast receivers
+    /*
     private BroadcastReceiver createReceiver;
     private BroadcastReceiver searchReceiver;
     private BroadcastReceiver updateReceiver;
-
+*/
 
     //Debugging
     private final String TAG = "MainActivity";
@@ -190,9 +191,11 @@ public class MainActivity extends AppCompatActivity
         checkPermissions();
 
         //Set up broadcast receivers
+        /*
         createReceiver = new CreateReceiver();
         searchReceiver = new SearchReceiver();
         updateReceiver = new UpdateReceiver();
+        */
     }
 
     private void updateUI() {
