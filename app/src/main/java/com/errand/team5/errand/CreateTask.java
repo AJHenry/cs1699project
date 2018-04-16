@@ -501,7 +501,7 @@ public class CreateTask extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
 
                     //Need to set the result to ok
-                    toSend = false; //TEMPORARY - FOR TESTING
+                    toSend = false; //TODO: remove this for demo
                     if (!toSend){
                         //Paypal drop-in payment UI (testing)
                         //braintreeDropIn();

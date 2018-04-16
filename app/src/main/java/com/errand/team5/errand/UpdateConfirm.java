@@ -58,6 +58,7 @@ public class UpdateConfirm extends AppCompatActivity {
     private double lat = 0.0;
     private double lng = 0.0;
 
+    //TODO: remove this for demo
     final boolean toSend = false;
 
 
@@ -81,6 +82,7 @@ public class UpdateConfirm extends AppCompatActivity {
         TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
+                //TODO: uncomment this for demo
                 //toSend = true;
                 del = extras.getBoolean("delete", false);
                 taskID = extras.getString("taskID");
