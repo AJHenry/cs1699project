@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/update_confirm_special_instructions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off" />
+
+        <TextView
+            android:id="@+id/update_confirm_drop_off7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="Subtotal"
+            android:textAlignment="textEnd"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_view3" />
+
+        <TextView
+            android:id="@+id/uc_payment_subtotal"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_marginEnd="32dp"
+            android:text="$ 6.11"
+            android:textAlignment="textEnd"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/update_confirm_drop_off7" />
+
+        <TextView
+            android:id="@+id/update_confirm_drop_off5"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="Taxes and fees"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off4" />
+
+        <TextView
+            android:id="@+id/update_confirm_drop_off9"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="Including taxes and fees"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off7" />
+
+        <TextView
+            android:id="@+id/uc_payment_fees"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="8dp"
+            android:text="$ 1.11"
+            android:textAlignment="textEnd"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_payment_base_cost" />
+
+        <TextView
+            android:id="@+id/update_confirm_drop_off4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:text="Errand Price"
+            android:textAlignment="textEnd"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_textView" />
+
+        <TextView
+            android:id="@+id/uc_textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:text="PAYMENT"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_view2" />
+
+        <TextView
+            android:id="@+id/uc_payment_base_cost"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginTop="24dp"
+            android:text="$ 5.00"
+            android:textAlignment="textEnd"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_textView" />
+
+        <View
+            android:id="@+id/uc_view2"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_special_instructions" />
+
+        <View
+            android:id="@+id/uc_view"
+            style="@xml/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginStart="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_description" />
+
+        <View
+            android:id="@+id/uc_view3"
+            style="@xml/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="48dp"
+            android:layout_marginStart="48dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off5" />
+
+        <TextView
+            android:id="@+id/uc_textView9"
+            style="@xml/divider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:text="ERRAND ADDRESS"
+            android:textSize="10sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off" />
+
+        <TextView
+            android:id="@+id/uc_textView13"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:text="DROP OFF ADDRESS"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_view" />
+
+        <TextView
+            android:id="@+id/update_confirm_errand"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="CONFIRM_UPDATE"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_textView9" />
+
+        <TextView
+            android:id="@+id/update_confirm_drop_off"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:text="CONFIRM_UPDATE"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_textView13" />
+
+        <TextView
+            android:id="@+id/update_confirm_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="24dp"
+            android:text="CONFIRM_UPDATE"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/uc_textView10" />
+
+        <TextView
+            android:id="@+id/update_confirm_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:text="CONFIRM_UPDATE"
+            android:textColor="@android:color/black"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/update_confirm_title" />
+
+        <TextView
+            android:id="@+id/uc_textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="16dp"
+            android:text="ERRAND UPDATE_CONFIRM"
+            android:textSize="10sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+            <Button
+                android:id="@+id/update_confirm_confirm"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:layout_marginTop="32dp"
+                android:text="CONFIRM CHANGES"
+                app:layout_constraintHorizontal_bias="0.2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off9" />
+            <Button
+                android:id="@+id/update_confirm_cancel"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginLeft="32dp"
+                android:text="EDIT"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toRightOf="@id/update_confirm_confirm"
+                app:layout_constraintTop_toBottomOf="@+id/update_confirm_drop_off9" />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+</LinearLayout>

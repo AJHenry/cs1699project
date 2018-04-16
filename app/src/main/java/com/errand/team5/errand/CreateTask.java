@@ -72,6 +72,9 @@ public class CreateTask extends AppCompatActivity {
     private NumberPicker timeTypeInput;
     private NumberPicker timeAmountInput;
 
+    //Edit existing task or not
+    private boolean editExisting;
+
     //Firebase
     private FirebaseAuth mAuth;
     private FirebaseUser user;
@@ -118,6 +121,9 @@ public class CreateTask extends AppCompatActivity {
         specialInstructionsInput = (EditText) findViewById(R.id.special_instructions);
         timeTypeInput = (NumberPicker) findViewById(R.id.time_type);
         timeAmountInput = (NumberPicker) findViewById(R.id.time_amount);
+
+        //Editing existing task or not
+        editExisting = getIntent().getBooleanExtra("editOnly", false);
 
         //Used for getting errand info from Team 4
         TaskData taskData;
@@ -320,7 +326,8 @@ public class CreateTask extends AppCompatActivity {
         //Get all the info from the inputs
         String title = titleInput.getText().toString();
         String description = descriptionInput.getText().toString();
-        double basePrice = costInput.getRawValue()/100.0;
+        double dBasePrice = costInput.getRawValue()/100.0;
+        long basePrice = costInput.getRawValue()/100;
         String dropOffAddress = "";
         if(dropOffPlace != null) {
             dropOffAddress = dropOffPlace.getAddress().toString();
@@ -349,8 +356,8 @@ public class CreateTask extends AppCompatActivity {
 
 
         //TODO Fee Calculation
-        double fees = basePrice * 0.20;
-        double subtotal = fees + basePrice;
+        double fees = dBasePrice * 0.20;
+        double subtotal = fees + dBasePrice;
 
         //Error checking
         if(title.length() < 5){
@@ -388,7 +395,7 @@ public class CreateTask extends AppCompatActivity {
         }
 
 
-        if(basePrice <= 0.0){
+        if(dBasePrice <= 0.0){
             //Display error underneath
             basePriceInputLayout.setErrorEnabled(true);
            basePriceInputLayout.setError("Cost*");
@@ -402,7 +409,23 @@ public class CreateTask extends AppCompatActivity {
 
         //Data is valid
         if(dataSatisfied) {
-            showSummary(title, description, basePrice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
+            if(!editExisting) {
+                showSummary(title, description, basePrice, fees, subtotal, dropOffPlace, specialInstructions, timeToComplete);
+            }
+            else{
+                Log.e(TAG, "Returning edited task data to UpdateTask");
+                TaskData passBack = new TaskData();
+                passBack.setTitle(title);
+                passBack.setDescription(description);
+                passBack.setPrice((int)basePrice);
+                passBack.setDropOffLocation(new mLocation(dropOffPlace.getLatLng().latitude, dropOffPlace.getLatLng().longitude));
+                passBack.setSpecialInstructions(specialInstructions);
+                passBack.setTimeToComplete(timeToComplete);
+                Intent returnIntent = new Intent();
+                returnIntent.putExtra("passBack", passBack);
+                setResult(RESULT_OK, returnIntent);
+                finish();
+            }
         }
     }
 
@@ -478,13 +501,16 @@ public class CreateTask extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Successfully requested Errand", Toast.LENGTH_LONG).show();
 
                     //Need to set the result to ok
+                    toSend = false; //TODO: remove this for demo
                     if (!toSend){
                         //Paypal drop-in payment UI (testing)
                         //braintreeDropIn();
 
                         Intent returnIntent = new Intent();
                         setResult(Activity.RESULT_OK, returnIntent);
+                        dialog.dismiss();
                         finish();
+
                     }
                     else {
                         //Used for passing data along to the next app
@@ -493,6 +519,7 @@ public class CreateTask extends AppCompatActivity {
                         Bundle extras = new Bundle();
                         extras.putInt("whichTrig",4);
                         extras.putString("store", title);
+                        dialog.dismiss();
 
                         if (launchIntent != null) {
                             launchIntent.putExtras(extras);
