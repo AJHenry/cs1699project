@@ -59,7 +59,7 @@ public class UpdateConfirm extends AppCompatActivity {
     private double lng = 0.0;
 
     //TODO: remove this for demo
-    final boolean toSend = false;
+    final boolean toSend = true;
 
 
     @Override
@@ -222,6 +222,7 @@ public class UpdateConfirm extends AppCompatActivity {
         newErrand.setTaskId(taskID);
         newErrand.setCreatorId(user.getUid());
         newErrand.setPublishTime(new mTimestamp());
+        newErrand.setDropOffDestination(new mLocation(40.444390, -79.953413));
 
         //Add to firebase
         ref.child(taskID).setValue(newErrand);
