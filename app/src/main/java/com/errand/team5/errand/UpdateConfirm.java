@@ -222,7 +222,7 @@ public class UpdateConfirm extends AppCompatActivity {
         newErrand.setTaskId(taskID);
         newErrand.setCreatorId(user.getUid());
         newErrand.setPublishTime(new mTimestamp());
-        newErrand.setDropOffDestination(new mLocation(40.444390, -79.953413));
+        newErrand.setDropOffDestination(new mLocation(37.422, -122.084));
 
         //Add to firebase
         ref.child(taskID).setValue(newErrand);

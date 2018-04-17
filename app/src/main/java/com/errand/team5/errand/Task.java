@@ -168,14 +168,11 @@ public class Task extends AppCompatActivity {
         onBackPressed();
         return true;
     }
+
     public void showProfile(){
-        final Dialog dialog = new Dialog(this);
-        //dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setCancelable(true);
-        dialog.setContentView(R.layout.summary);
-        //Do processing here
-        dialog.show();
+        return;
     }
+
     //Check if their profile is null, if so, redirect them to login
     private void checkLogin(FirebaseUser user) {
         // TODO Fix error where application closes after first login
