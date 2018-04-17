@@ -1,6 +1,9 @@
 package com.errand.team5.errand;
 
+import android.content.ContentProviderClient;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -131,6 +134,31 @@ public class UpdateTask extends AppCompatActivity {
         final TaskData taskData;
         try {
             if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
+
+                String apiKey = taskData.getApiKey();
+                Uri.Builder uri = new Uri.Builder();
+
+                uri.authority("keys");
+                ContentProviderClient myCP = getContentResolver().acquireContentProviderClient("keys");
+                try {
+                    Cursor myQuery = myCP.query(uri.build(), new String[]{"Test"} , "selection", new String[]{apiKey}, "sort");
+                    if (myQuery != null){
+                        myQuery.moveToFirst();
+
+                        if (myQuery.getString(1).equals(apiKey)){
+                            Toast.makeText(getApplicationContext(), "API KEY FOUND",Toast.LENGTH_LONG).show();
+                        }
+                        else{
+                            Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 1",Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 2",Toast.LENGTH_LONG).show();
+                    }
+                } catch (Exception e){
+                    Toast.makeText(getApplicationContext(), e.toString(),Toast.LENGTH_LONG).show();
+                }
+
                 //save task data
                 updatedTaskInfo = taskData;
                 //Query DB for a matching task (just check title and user ID)
