@@ -56,6 +56,8 @@ public class Search extends AppCompatActivity {
     //Debug
     private final String TAG = "Search";
 
+    private int passOnFlag = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -195,6 +197,7 @@ public class Search extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent task = new Intent(getApplicationContext(), Task.class);
                 task.putExtra("taskId", errandList.get(position).getTaskId());
+                task.putExtra("passOnFlag", passOnFlag);
                 startActivity(task);
             }
         });

@@ -55,6 +55,9 @@ public class LocationFeed extends AppCompatActivity {
     private FirebaseUser user;
     private DatabaseReference myRef;
 
+    //Variable to set for passing onto next app
+    private int passOnFlag = 1;
+
 
 
     //Debug
@@ -141,6 +144,7 @@ public class LocationFeed extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent task = new Intent(getApplicationContext(), Task.class);
                 task.putExtra("taskId", errandList.get(position).getTaskId());
+                task.putExtra("passOnFlag", passOnFlag);
                 startActivity(task);
             }
         });
