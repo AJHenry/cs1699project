@@ -1,10 +1,14 @@
 package com.errand.team5.errand;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentProviderClient;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -62,6 +66,31 @@ public class Search extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.e(TAG,"In Search.java");
         setContentView(R.layout.activity_search);
+
+        String apiKey =  getIntent().getStringExtra("ApiKey");
+        Log.e(TAG, "Key: " + apiKey);
+        Uri.Builder uri = new Uri.Builder();
+        uri.authority("keys");
+
+        ContentProviderClient myCP = getContentResolver().acquireContentProviderClient("keys");
+        try {
+            Cursor myQuery = myCP.query(uri.build(), new String[]{"Test"} , "selection", new String[]{apiKey}, "sort");
+            if (myQuery != null){
+                myQuery.moveToFirst();
+
+                if (myQuery.getString(1).equals(apiKey)){
+                    Toast.makeText(getApplicationContext(), "API KEY FOUND",Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 1",Toast.LENGTH_LONG).show();
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 2",Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e){
+            Toast.makeText(getApplicationContext(), e.toString(),Toast.LENGTH_LONG).show();
+        }
 
         term = getIntent().getStringExtra("SearchTerm");
         if(!(term.isEmpty())){
