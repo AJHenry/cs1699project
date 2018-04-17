@@ -179,9 +179,13 @@ public class Feed extends Fragment {
     private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
         Log.d(TAG, "Generated feed for home screen");
 
-        Snackbar snackbar = Snackbar
-                .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+        Snackbar snackbar = null;
+        try {
+             snackbar = Snackbar
+                    .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+        }catch (NullPointerException e){
 
+        }
 
         //TODO display a text with no tasks available in your area
 
@@ -205,10 +209,14 @@ public class Feed extends Fragment {
 
         }
 
-        if (errandList.isEmpty()) {
-            snackbar.show();
-        }else{
-            snackbar.dismiss();
+        try {
+            if (errandList.isEmpty()) {
+                snackbar.show();
+            } else {
+                snackbar.dismiss();
+            }
+        }catch (NullPointerException e){
+
         }
     }
 
