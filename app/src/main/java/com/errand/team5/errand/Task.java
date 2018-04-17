@@ -53,6 +53,8 @@ public class Task extends AppCompatActivity {
     private boolean lock;
     private Context context;
 
+    private TaskModel model;
+
     private int passOnFlag = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -230,8 +232,8 @@ public class Task extends AppCompatActivity {
                                     Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
 
                                     extras.putInt("whichTrig",2);
-                                    extras.putDouble("lon", -71.43148724824);
-                                    extras.putDouble("lat", 47.432189432143);
+                                    extras.putDouble("lon", model.getDropOffDestination().getLongitude());
+                                    extras.putDouble("lat", model.getDropOffDestination().getLatitude());
                                     launchIntent.putExtras(extras);
                                     if (launchIntent != null) {
                                         startActivity(launchIntent);//null pointer check in case package name was not found
@@ -245,7 +247,7 @@ public class Task extends AppCompatActivity {
                                     //  extras.putBoolean("switchOn", simpleSwitch.isChecked());
                                     //  extras.putString("username",acct.getDisplayName());
                                     extras.putInt("whichTrig",1);
-                                    extras.putString("store", "Primanti's");
+                                    extras.putString("store", model.getTitle());
                                     extras.putString("description", "free sandwich");
                                     extras.putString("code", "1111");
                                     extras.putInt("year", 2018);
@@ -253,8 +255,8 @@ public class Task extends AppCompatActivity {
                                     extras.putInt("day", 20);
                                     extras.putInt("hour", 12);
                                     extras.putInt("minute", 30);
-                                    extras.putDouble("lat", 47.432189432143);
-                                    extras.putDouble("lon", -71.43148724824);
+                                    extras.putDouble("lat", model.getDropOffDestination().getLatitude());
+                                    extras.putDouble("lon", model.getDropOffDestination().getLongitude());
                                     launchIntent.putExtras(extras);
                                     if (launchIntent != null) {
                                         startActivity(launchIntent);//null pointer check in case package name was not found
@@ -262,9 +264,10 @@ public class Task extends AppCompatActivity {
 
                                 }else{
                                     //Start the main activity
-                                    Intent intent = new Intent(context, MainActivity.class);
+                                    //Intent intent = new Intent(context, MainActivity.class);
                                     //put any extras if needed
-                                    startActivity(intent);
+                                    //startActivity(intent);
+                                    finish();
                                 }
                             }
                             @Override
@@ -293,7 +296,7 @@ public class Task extends AppCompatActivity {
                     table.addListenerForSingleValueEvent(new ValueEventListener() {
 
                         public void onDataChange(DataSnapshot data) {
-                            TaskModel model = data.getValue(TaskModel.class);
+                            model = data.getValue(TaskModel.class);
                             taskTitle.setText(model.getTitle());
                             taskCompletionTime.setText(model.getTimeToCompleteMins()+" mins");
                             taskDescription.setText(model.getDescription());
