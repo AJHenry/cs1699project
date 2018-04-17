@@ -1,9 +1,12 @@
 package com.errand.team5.errand;
 
 import android.content.BroadcastReceiver;
+import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.net.Uri;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -74,7 +77,28 @@ public class LocationFeed extends AppCompatActivity {
         String apiKey = obj.get("apiKey").getAsString();
         lat = obj.get("lat").getAsDouble();
         lng = obj.get("lng").getAsDouble();
+        Uri.Builder uri = new Uri.Builder();
 
+        uri.authority("keys");
+        ContentProviderClient myCP = getContentResolver().acquireContentProviderClient("keys");
+        try {
+            Cursor myQuery = myCP.query(uri.build(), new String[]{"Test"} , "selection", new String[]{apiKey}, "sort");
+            if (myQuery != null){
+                myQuery.moveToFirst();
+
+                if (myQuery.getString(1).equals(apiKey)){
+                    Toast.makeText(getApplicationContext(), "API KEY FOUND",Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 1",Toast.LENGTH_LONG).show();
+                }
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "API KEY NOT FOUND 2",Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e){
+            Toast.makeText(getApplicationContext(), e.toString(),Toast.LENGTH_LONG).show();
+        }
 
         //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
         Snackbar snackbar = Snackbar
