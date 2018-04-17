@@ -52,16 +52,24 @@ public class Task extends AppCompatActivity {
     private FirebaseUser user;
     private boolean lock;
     private Context context;
+
+    private int passOnFlag = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
         Intent intent = getIntent();
         id = intent.getStringExtra("taskId");
+        passOnFlag = intent.getIntExtra("passOnFlag", 0);
+
+
+
         context = this;
+
         //Show the back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         // Configure sign-in to request the user's ID, email address, and basic
         // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         // ...
@@ -116,7 +124,7 @@ public class Task extends AppCompatActivity {
                     Toast.makeText(context, "Sorry, this task is no longer available :(", Toast.LENGTH_LONG).show();
                     requestButton.setEnabled(false);
                 }
-                else if(status == 0 && requestButton.isEnabled() == false)
+                else if(status == 0 && !requestButton.isEnabled())
                 {
                     requestButton.setEnabled(true);
                 }
@@ -212,9 +220,52 @@ public class Task extends AppCompatActivity {
                                 thisErrand.child("status").setValue(1);
                                 requestButton.setEnabled(false);
                                 Toast.makeText(context, "Your request is pending approval. See notifications page to know when you have been accepted or declined.", Toast.LENGTH_LONG).show();
-                                Intent intent = new Intent(context, MainActivity.class);
-                                //put any extras if needed
-                                startActivity(intent);
+
+                                //Check to see if we need to pass data to the next app
+                                //Came from location
+                                if(passOnFlag == 1) {
+                                    Log.wtf("FLAG", "CAME FROM LOCATION");
+
+                                    Bundle extras = new Bundle();
+                                    Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
+
+                                    extras.putInt("whichTrig",2);
+                                    extras.putDouble("lon", -71.43148724824);
+                                    extras.putDouble("lat", 47.432189432143);
+                                    launchIntent.putExtras(extras);
+                                    if (launchIntent != null) {
+                                        startActivity(launchIntent);//null pointer check in case package name was not found
+                                    }
+
+                                    //Came from search
+                                }else if(passOnFlag == 2) {
+                                    Log.wtf("FLAG", "CAME FROM SEARCH");
+                                    Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
+                                    Bundle extras = new Bundle();
+                                    //  extras.putBoolean("switchOn", simpleSwitch.isChecked());
+                                    //  extras.putString("username",acct.getDisplayName());
+                                    extras.putInt("whichTrig",1);
+                                    extras.putString("store", "Primanti's");
+                                    extras.putString("description", "free sandwich");
+                                    extras.putString("code", "1111");
+                                    extras.putInt("year", 2018);
+                                    extras.putInt("month", 8);
+                                    extras.putInt("day", 20);
+                                    extras.putInt("hour", 12);
+                                    extras.putInt("minute", 30);
+                                    extras.putDouble("lat", 47.432189432143);
+                                    extras.putDouble("lon", -71.43148724824);
+                                    launchIntent.putExtras(extras);
+                                    if (launchIntent != null) {
+                                        startActivity(launchIntent);//null pointer check in case package name was not found
+                                    }
+
+                                }else{
+                                    //Start the main activity
+                                    Intent intent = new Intent(context, MainActivity.class);
+                                    //put any extras if needed
+                                    startActivity(intent);
+                                }
                             }
                             @Override
                             public void onCancelled(DatabaseError databaseError) {
@@ -244,7 +295,7 @@ public class Task extends AppCompatActivity {
                         public void onDataChange(DataSnapshot data) {
                             TaskModel model = data.getValue(TaskModel.class);
                             taskTitle.setText(model.getTitle());
-                            taskCompletionTime.setText(model.getTimeToCompleteMins()+"");
+                            taskCompletionTime.setText(model.getTimeToCompleteMins()+" mins");
                             taskDescription.setText(model.getDescription());
 
                             NumberFormat format = NumberFormat.getCurrencyInstance();
