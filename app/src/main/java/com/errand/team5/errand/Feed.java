@@ -179,20 +179,12 @@ public class Feed extends Fragment {
     private void generateFeed(final ArrayList<TaskModel> errandList, Location location) {
         Log.d(TAG, "Generated feed for home screen");
 
+        Snackbar snackbar = Snackbar
+                .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
+
+
         //TODO display a text with no tasks available in your area
-        if (errandList.isEmpty()) {
-            //Toast.makeText(getContext(), "No tasks in your area", Toast.LENGTH_LONG).show();
-            Snackbar snackbar = Snackbar
-                    .make(getActivity().findViewById(R.id.main_layout), "No tasks available in your area", Snackbar.LENGTH_INDEFINITE);
-                    /*
-                    .setAction("RETRY", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                        }
-                    });
-                    */
-            snackbar.show();
-        }
+
 
         //Get rid of the spinner
         spinner.setVisibility(View.GONE);
@@ -211,6 +203,12 @@ public class Feed extends Fragment {
             });
         }catch(NullPointerException e){
 
+        }
+
+        if (errandList.isEmpty()) {
+            snackbar.show();
+        }else{
+            snackbar.dismiss();
         }
     }
 
@@ -255,12 +253,15 @@ public class Feed extends Fragment {
         //But getting the last key may not be done since firebase is async
         //So instead we have to set the flag in onGeoQueryReady, and then call it from the last onKeyEntered
         final boolean[] isReady = {false};
+        final int[] keyCount = {0};
+        final int[] refCount = {0};
 
         //Now we need listeners for each type of event
         //We're really only concerned with
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
+                keyCount[0]++;
                 Log.d(TAG, "Found one " + key);
                 //Query the firebase based on the key
                 Query queryRef = myTasksRef.orderByChild("taskId").equalTo(key);
@@ -268,6 +269,7 @@ public class Feed extends Fragment {
                 queryRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        refCount[0]++;
                         Log.d(TAG, "Got it from the database");
                         if (dataSnapshot.exists()) {
                             Log.d(TAG, "Even added it!");
@@ -280,6 +282,8 @@ public class Feed extends Fragment {
                                 }
                             }
 
+                        }
+                        if(refCount[0] == keyCount[0]){
                             if (isReady[0]) {
                                 //Generate the keys when everything is done
                                 generateFeed(errands, userLocation);
@@ -307,6 +311,10 @@ public class Feed extends Fragment {
             @Override
             public void onGeoQueryReady() {
                 isReady[0] = true;
+                if(refCount[0] == keyCount[0]){
+                    //Generate the keys when everything is done
+                    generateFeed(errands, userLocation);
+                }
             }
 
             @Override

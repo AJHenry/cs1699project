@@ -157,6 +157,7 @@ public class UpdateConfirm extends AppCompatActivity {
                         finish();
                     }
                     else {
+                        /*
                         //Used for passing data along to the next app
                         // Only called when we receive data from another app
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
@@ -168,6 +169,14 @@ public class UpdateConfirm extends AppCompatActivity {
                             launchIntent.putExtras(extras);
                             startActivity(launchIntent);//null pointer check in case package name was not found
                         }
+                        */
+                        //Intent launchIntent = getPackageManager().getLaunchIntentForPackage("com.example.kmt71.couponapp");
+                        Bundle extras = new Bundle();
+                        extras.putInt("whichTrig",3);
+
+                        Intent i = new Intent("com.example.kmt71.couponapp.MY_CUSTOM_ACTION");
+                        i.putExtras(extras);
+                        sendBroadcast(i);
                     }
                 }else{
                     //Shouldn't ever happen
