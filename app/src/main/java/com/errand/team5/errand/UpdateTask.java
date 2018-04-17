@@ -48,6 +48,8 @@ public class UpdateTask extends AppCompatActivity {
     //delete or no
     private boolean delete = false;
 
+    //internal flag (stupid way to check state)
+    private boolean runCheck = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -102,7 +104,7 @@ public class UpdateTask extends AppCompatActivity {
                 //send back to confirmation screen with new data
                 Bundle extras = data.getExtras();
                 try{
-                    Toast.makeText(this, "request canceled", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "edits saved", Toast.LENGTH_SHORT).show();
                     TaskData taskData = (TaskData) extras.getSerializable("passBack");
                     Intent confirmIntent = new Intent(this, UpdateConfirm.class);
                     confirmIntent.putExtra("taskData", taskData);
@@ -120,6 +122,7 @@ public class UpdateTask extends AppCompatActivity {
     @Override
     public void onStart(){
         super.onStart();
+        Log.wtf(DEBUG, "Starting UpdateTask");
         FirebaseUser fUser = mAuth.getCurrentUser();
         checkLogin(fUser);
 
@@ -131,7 +134,9 @@ public class UpdateTask extends AppCompatActivity {
         // Get all fields from UpdateReceiver's data
         final TaskData taskData;
         try {
-            if ((taskData = (TaskData) extras.getSerializable("taskData")) != null) {
+            if ((taskData = (TaskData) extras.getSerializable("taskData")) != null && runCheck) {
+                //flip check flag to avoid running DB check when returning during an update
+                runCheck = false;
                 //save task data
                 updatedTaskInfo = taskData;
                 //Query DB for a matching task (just check title and user ID)

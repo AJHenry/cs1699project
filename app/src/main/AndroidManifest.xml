@@ -90,6 +90,13 @@
             </intent-filter>
         </receiver>
 
+        <activity android:name=".Notifications"></activity>
+        <provider
+            android:name=".ApiContentProvider"
+            android:authorities="keys"
+            android:enabled="true"
+            android:exported="true" />
+
         <receiver
             android:name=".SearchReceiver"
             android:enabled="true"
@@ -109,10 +116,12 @@
         </receiver>
 
         <service
-            android:exported="true"
-            android:name=".BoundService"></service>
+            android:name=".BoundService"
+            android:exported="true" />
 
-        <activity android:name=".Search"></activity>
+        <activity android:name=".Search" />
+        <activity android:name=".LocationFeed"
+            android:exported="true"></activity>
     </application>
 
 </manifest>

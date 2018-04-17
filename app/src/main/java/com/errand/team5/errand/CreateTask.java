@@ -415,15 +415,17 @@ public class CreateTask extends AppCompatActivity {
             }
             else{
                 Log.e(TAG, "Returning edited task data to UpdateTask");
+                Bundle pass = new Bundle();
                 TaskData passBack = new TaskData();
                 passBack.setTitle(title);
                 passBack.setDescription(description);
-                passBack.setPrice(basePrice);
+                passBack.setPrice((int)basePrice);
                 passBack.setDropOffLocation(new mLocation(dropOffPlace.getLatLng().latitude, dropOffPlace.getLatLng().longitude));
                 passBack.setSpecialInstructions(specialInstructions);
                 passBack.setTimeToComplete(timeToComplete);
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra("passBack", passBack);
+                pass.putSerializable("passBack", passBack);
+                returnIntent.putExtra("bundle", pass);
                 setResult(RESULT_OK, returnIntent);
                 finish();
             }

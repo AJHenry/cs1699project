@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.location.Location;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -52,15 +53,14 @@ public class Search extends AppCompatActivity {
     private FirebaseUser user;
     private DatabaseReference myRef;
 
-    //Used for the broadcast receiver
-    BroadcastReceiver receiver = null;
-
     //Debug
     private final String TAG = "Search";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e(TAG,"In Search.java");
         setContentView(R.layout.activity_search);
 
         term = getIntent().getStringExtra("SearchTerm");
@@ -209,7 +209,7 @@ public class Search extends AppCompatActivity {
      *
      * @param userLocation Search of the user to query errands on
      */
-    private void updateUI(final android.location.Location userLocation) {
+    private void updateUI(final Location userLocation) {
         //TODO decide when to update
 
         //Global arraylist of errands
@@ -239,6 +239,5 @@ public class Search extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Error with firebase, contact help", Toast.LENGTH_LONG).show();
             }
         });
-
     }
 }
